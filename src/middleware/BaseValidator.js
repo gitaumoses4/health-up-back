@@ -26,7 +26,6 @@ export default class BaseValidator {
       const found = await Model.findOne({ where: { [field]: req[value][field] } });
       if (!found) {
         req.errorStatus = 404;
-
         throw new Error(message || `${Model.name} not found`);
       }
     };
@@ -104,7 +103,8 @@ export default class BaseValidator {
       } catch (error) {
         res.status(req.errorStatus || 500).json({
           success: false,
-          message: error.message
+          message: req.errorStatus ? error.message : 'Server error, please try again!',
+          debugMessage: error.message
         });
         console.error(error);
       }

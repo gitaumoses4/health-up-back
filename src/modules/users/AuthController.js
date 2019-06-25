@@ -5,13 +5,9 @@ import JWT from '../../utils/auth';
 const SALT = 10;
 
 export default class AuthController {
-  static async registerUser(req) {
-    const {
-      body: {
-        email, password, name, accountType
-      }
-    } = req;
-
+  static async createUser({
+    email, password, name, accountType
+  }) {
     const user = await models.User.create({
       email,
       name,
@@ -20,7 +16,32 @@ export default class AuthController {
     });
 
     await user.reload();
+    return user;
+  }
 
+  static async registerCompany({
+    body,
+    body: {
+      naturalBusiness, registrationNumber, noOfEmployees,
+      responsibleName, receipt,
+    }
+  }) {
+    const user = await AuthController.createUser(body);
+    user.dataValues.company = await models.Company.create({
+      naturalBusiness,
+      registrationNumber,
+      noOfEmployees,
+      responsibleName,
+      receipt,
+      verified: false,
+      userId: user.id
+    });
+
+    return [201, { token: JWT.generate(user), user }, 'Company created successfully'];
+  }
+
+  static async registerUser({ body }) {
+    const user = await AuthController.createUser(body);
     return [201, { token: JWT.generate(user), user }, 'Account created successfully'];
   }
 

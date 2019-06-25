@@ -18,7 +18,7 @@ module.exports = {
     accountType: {
       allowNull: false,
       defaultValue: 'Normal',
-      type: Sequelize.ENUM('Normal', 'Admin', 'Ambulance')
+      type: Sequelize.ENUM('Normal', 'Company', 'Admin', 'Ambulance')
     },
     password: {
       allowNull: false,
@@ -37,5 +37,5 @@ module.exports = {
       type: Sequelize.DATE
     }
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('Users')
+  down: (queryInterface, Sequelize) => queryInterface.dropTable('Users'),
 };

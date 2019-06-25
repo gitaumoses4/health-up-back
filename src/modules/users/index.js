@@ -5,15 +5,13 @@ import UserValidator from '../../middleware/UserValidator';
 import AuthController from './AuthController';
 
 const Router = new MRouter(
-  BaseValidator.requiredFields(['email', 'password', 'name'])
+  BaseValidator.requiredFields(['email', 'password', 'name']),
 );
 
 
 Router.post(
   '/register',
-  BaseValidator.uniqueFields({
-    email: 'The email provided is already in use',
-  }, models.User),
+  BaseValidator.uniqueFields({ email: 'The email provided is already in use' }, models.User),
   UserValidator.validateEmail,
   AuthController.registerUser
 );
