@@ -1,7 +1,9 @@
 import root from './root';
+import users from './users';
 
 const modules = {
-  root
+  root,
+  users
 };
 
 const apiVersion = '/api/v1';
