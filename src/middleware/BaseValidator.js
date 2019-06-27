@@ -104,9 +104,8 @@ export default class BaseValidator {
         res.status(req.errorStatus || 500).json({
           success: false,
           message: req.errorStatus ? error.message : 'Server error, please try again!',
-          debugMessage: error.message
+          debugMessage: req.errorStatus ? undefined : error.message
         });
-        console.error(error);
       }
     };
   }

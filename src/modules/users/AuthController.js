@@ -46,7 +46,19 @@ export default class AuthController {
   }
 
   static async loginUser({ body: { email, password } }) {
-    const user = await models.User.unscoped().findOne({ where: { email } });
+    const user = await models.User.unscoped().findOne({
+      where: { email },
+      include: [
+        {
+          model: models.Company,
+          as: 'company'
+        },
+        {
+          model: models.Profile,
+          as: 'profile'
+        }
+      ]
+    });
     if (await bcrypt.compare(password, user.password)) {
       delete user.dataValues.password;
       return [200, { token: JWT.generate(user.dataValues), user }, 'Login successful'];

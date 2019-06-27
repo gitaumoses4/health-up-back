@@ -1,11 +1,13 @@
 import root from './root';
 import users from './users';
 import companies from './companies';
+import profiles from './profiles';
 
 const modules = {
   root,
   users,
-  companies
+  companies,
+  profiles
 };
 
 const apiVersion = '/api/v1';
