@@ -25,8 +25,14 @@ export default class BaseValidator {
     return async (req) => {
       const found = await Model.findOne({ where: { [field]: req[value][field] } });
       if (!found) {
+        let msg = message;
+        if (msg) {
+          msg = msg.constructor === Function ? message(req[value][field]) : msg;
+        } else {
+          msg = `${Model.name} not found`;
+        }
         req.errorStatus = 404;
-        throw new Error(message || `${Model.name} not found`);
+        throw new Error(msg);
       }
     };
   }

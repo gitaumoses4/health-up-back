@@ -1,4 +1,4 @@
-export default {
+const options = {
   create: {
     fields: [],
     preCreate: (req) => {},
@@ -34,10 +34,12 @@ export default {
     preUpdate: (req) => {},
     update: (req) => {},
     middleware: [],
+    field: 'id',
     postUpdate: (req, result) => {},
     response: (result) => {}
   },
   delete: {
+    field: 'id',
     middleware: [],
     preDelete: (req) => {},
     delete: (req) => {},
@@ -45,3 +47,9 @@ export default {
     response: (result) => {}
   }
 };
+
+const config = {
+  defaultMiddleware: []
+};
+
+export default { options, config };

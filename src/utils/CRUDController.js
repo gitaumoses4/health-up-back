@@ -3,16 +3,19 @@ import pluralize from 'pluralize';
 import MRouter from './router';
 import models from '../database/models';
 import crudOptions from './crudOptions';
+import BaseValidator from '../middleware/BaseValidator';
 
 
-const defaultOptions = crudOptions;
+const { options: defaultOptions, config: defaultConfig } = crudOptions;
+
 
 class CRUDController {
-  constructor(model, endpoint, options, defaultMiddleware = []) {
+  constructor(model, endpoint, options, config) {
     this.model = model;
+    this.config = _.merge(defaultConfig, config);
     this.endpoint = endpoint;
     this.Router = new MRouter();
-    this.defaultMiddleware = defaultMiddleware;
+    this.defaultMiddleware = this.config.defaultMiddleware;
     this.options = _.merge(defaultOptions, options);
     Object.keys(this.options).forEach(
       type => this.generateEndpoints(type)
@@ -38,7 +41,7 @@ class CRUDController {
     };
   }
 
-  generateFields(req, retrieveFields, keys = models[this.model].tableAttributes) {
+  generateFields(req, retrieveFields = [], keys = models[this.model].tableAttributes) {
     const allFields = Object.keys(keys);
     let fields = retrieveFields;
     if (retrieveFields.constructor === Function) {
@@ -64,8 +67,7 @@ class CRUDController {
       const {
         fields, preCreate, create, postCreate, response
       } = this.options.create;
-      const mapped = _.pick(req.body, this.generateFields(fields));
-      await preCreate(req.body);
+      const mapped = _.pick(req.body, this.generateFields(req, fields));
       const changed = _.merge({ ...mapped }, await preCreate(req));
       const result = await models[this.model].create(changed, await create(req));
       await result.reload();
@@ -141,7 +143,25 @@ class CRUDController {
 
   update() {
     return async (req) => {
+      const {
+        fields, preUpdate, update, postUpdate, response, field
+      } = this.options.update;
+      const mapped = _.pick(req.body, this.generateFields(req, fields));
+      const changed = _.merge({ ...mapped }, await preUpdate(req));
 
+      const params = _.merge({ where: { [field]: req.params[field] } }, await update(req));
+
+      const toUpdate = await models[this.model].findOne(params);
+      const result = await toUpdate.update(changed);
+      await result.reload();
+      await postUpdate(result);
+
+      const updatedResponse = _.assign(result.dataValues, await response(result));
+      return [
+        201,
+        { [this.model.toLowerCase()]: updatedResponse },
+        `${this.model} updated successfully`
+      ];
     };
   }
 
@@ -162,6 +182,16 @@ class CRUDController {
     };
     const { method, endpoint } = methods[type];
     const { middleware } = this.options[type];
+    const { notFound } = this.config;
+    if (['delete', 'update', 'read'].includes(type)) {
+      const { field } = this.options[type];
+      middleware.push(
+        BaseValidator.modelExists(
+          field, 'params', models[this.model],
+          notFound
+        )
+      );
+    }
     this.Router[method](endpoint,
       ...this.defaultMiddleware,
       ...middleware,
