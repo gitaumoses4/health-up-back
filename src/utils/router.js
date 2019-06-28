@@ -13,7 +13,7 @@ class MRouter {
     this.defaultMiddleware = defaultMiddleware;
 
     methods.forEach((method) => {
-      MRouter.prototype[method] = (route, ...middleware) => {
+      this[method] = (route, ...middleware) => {
         this.Router[method](route, errorHandler(MRouter.uniqueMiddleware(
           this.defaultMiddleware,
           middleware

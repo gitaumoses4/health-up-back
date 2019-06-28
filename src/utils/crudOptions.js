@@ -5,7 +5,10 @@ const options = {
     create: (req, mapped) => {},
     middleware: [],
     postCreate: (req, result) => {},
-    response: result => ({})
+    endpoint: '',
+    controller: 'create',
+    method: 'post',
+    response: result => result
   },
   read: {
     middleware: [],
@@ -14,9 +17,15 @@ const options = {
     read: req => ({}),
     postRead: (req, result) => {
     },
-    field: 'id',
+    field: {
+      name: 'id',
+      type: 'integer'
+    },
     fields: '*',
-    response: result => ({}),
+    endpoint: field => `:${field}`,
+    method: 'get',
+    controller: 'read',
+    response: result => result,
   },
   list: {
     middleware: [],
@@ -26,7 +35,10 @@ const options = {
     }),
     fields: '*',
     postList: (req, result) => {},
-    response: (result) => {},
+    endpoint: '',
+    method: 'get',
+    controller: 'list',
+    response: result => result,
     pagination: null
   },
   update: {
@@ -34,17 +46,29 @@ const options = {
     preUpdate: (req) => {},
     update: (req) => {},
     middleware: [],
-    field: 'id',
+    endpoint: field => `:${field}`,
+    method: 'put',
+    controller: 'update',
+    field: {
+      name: 'id',
+      type: 'integer'
+    },
     postUpdate: (req, result) => {},
-    response: (result) => {}
+    response: result => result,
   },
   delete: {
-    field: 'id',
+    field: {
+      name: 'id',
+      type: 'integer'
+    },
     middleware: [],
+    method: 'delete',
     preDelete: (req) => {},
     delete: (req) => {},
+    endpoint: field => `:${field}`,
+    controller: 'delete',
     postDelete: (req, result) => {},
-    response: (result) => {}
+    response: result => result,
   }
 };
 

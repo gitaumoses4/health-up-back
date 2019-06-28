@@ -2,6 +2,8 @@ import root from './root';
 import users from './users';
 import companies from './companies';
 import profiles from './profiles';
+import CRUDController from '../utils/CRUDController';
+import MRouter from '../utils/router';
 
 const modules = {
   root,
@@ -16,7 +18,13 @@ const apiVersion = '/api/v1';
 // Endpoints in the module named 'root' will not have the name of the folder appended.
 export default (app) => {
   const createEndpoint = (module, route) => {
-    app.use(`${apiVersion}/${module === 'root' ? '' : module}`, route);
+    let router = route;
+    if (route.constructor === CRUDController) {
+      router = router.Router.Router;
+    } else if (route.constructor === MRouter) {
+      router = router.Router;
+    }
+    app.use(apiVersion, router);
   };
 
   Object.keys(modules).forEach((module) => {

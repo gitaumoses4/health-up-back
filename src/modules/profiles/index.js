@@ -6,7 +6,7 @@ const include = () => ({
   include: [{ model: models.User, as: 'user' }]
 });
 
-const controller = new CRUDController('Profile', '', {
+const controller = new CRUDController('Profile', '/profiles', {
   create: {
     fields: '*',
     preCreate: () => ({ userId: 1 }),
@@ -30,4 +30,5 @@ const controller = new CRUDController('Profile', '', {
 }, {
   notFound: field => (`Profile with id ${field} does not exist`)
 });
+
 export default controller.Router.Router;

@@ -21,10 +21,9 @@ export default class BaseValidator {
     );
   }
 
-  static modelExists(field, value, Model, message) {
+  static modelExists(modelField, value, Model, message) {
     return async (req) => {
-      const found = await Model.findOne({ where: { [field]: req[value][field] } });
-      if (!found) {
+      const throwError = () => {
         let msg = message;
         if (msg) {
           msg = msg.constructor === Function ? message(req[value][field]) : msg;
@@ -33,6 +32,22 @@ export default class BaseValidator {
         }
         req.errorStatus = 404;
         throw new Error(msg);
+      };
+
+      let field = modelField;
+      if (field.constructor === Object) {
+        const { name, type } = field;
+        if (/int|integer/i.test(type)) {
+          if (isNaN(req[value][name])) {
+            req.errorStatus = 404;
+            throw new Error('Not found!');
+          }
+        }
+        field = name;
+      }
+      const found = await Model.findOne({ where: { [field]: req[value][field] } });
+      if (!found) {
+        throwError();
       }
     };
   }
