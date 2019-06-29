@@ -21,8 +21,21 @@ export default class BaseValidator {
     );
   }
 
-  static modelExists(modelField, value, Model, message) {
+  static modelExists(modelField, Model, message) {
     return async (req) => {
+      let field = modelField;
+      let value = 'params';
+      if (field.constructor === Object) {
+        const { name, type, location } = field;
+        if (/int|integer/i.test(type)) {
+          if (isNaN(req[value][name])) {
+            req.errorStatus = 404;
+            throw new Error('Not found!');
+          }
+        }
+        field = name;
+        value = location || value;
+      }
       const throwError = () => {
         let msg = message;
         if (msg) {
@@ -34,17 +47,6 @@ export default class BaseValidator {
         throw new Error(msg);
       };
 
-      let field = modelField;
-      if (field.constructor === Object) {
-        const { name, type } = field;
-        if (/int|integer/i.test(type)) {
-          if (isNaN(req[value][name])) {
-            req.errorStatus = 404;
-            throw new Error('Not found!');
-          }
-        }
-        field = name;
-      }
       const found = await Model.findOne({ where: { [field]: req[value][field] } });
       if (!found) {
         throwError();
@@ -122,10 +124,11 @@ export default class BaseValidator {
           next();
         }
       } catch (error) {
+        console.log(error);
         res.status(req.errorStatus || 500).json({
           success: false,
           message: req.errorStatus ? error.message : 'Server error, please try again!',
-          debugMessage: req.errorStatus ? undefined : error.message
+          debugMessage: req.errorStatus ? undefined : error.stack
         });
       }
     };

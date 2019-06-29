@@ -15,6 +15,16 @@ const cleanEndpoint = (endpoint) => {
   return '';
 };
 
+const cleanMessage = (result, message, defaultMessage) => {
+  if (message) {
+    if (message.constructor === Function) {
+      return message(result);
+    }
+    return message;
+  }
+  return defaultMessage;
+};
+
 class CRUDController {
   constructor(model, endpoint, options, config) {
     this.model = model;
@@ -67,11 +77,15 @@ class CRUDController {
     return [];
   }
 
-
   create(type) {
     return async (req) => {
       const {
-        fields, preCreate, create, postCreate, response
+        fields,
+        preCreate,
+        create,
+        postCreate,
+        response,
+        message
       } = this.options[type];
       const mapped = _.pick(req.body, this.generateFields(req, fields));
       const changed = _.merge({ ...mapped }, await preCreate(req));
@@ -79,40 +93,59 @@ class CRUDController {
       await result.reload();
       await postCreate(result);
 
-      return [
-        201,
-        await response({ [this.model.toLowerCase()]: result }),
-        `${this.model} created successfully`
-      ];
+      return response(
+        {
+          req,
+          model: this.model,
+          status: 201,
+          data: result,
+          message: cleanMessage(result, message, `${this.model} created successfully`)
+        }
+      );
     };
   }
 
   read(type) {
     return async (req) => {
       const {
-        field, preRead, read, postRead, response, fields
+        field,
+        preRead,
+        read,
+        modelOptions,
+        postRead,
+        response,
+        fields,
+        message
       } = this.options[type];
 
       await preRead();
       const changed = await read(req);
       const params = _.merge({ where: this.createFieldParam(field, req) }, changed);
 
-      const result = await models[this.model].findOne(params);
+      let modelApi = models[this.model];
+      if (modelOptions.unscoped) {
+        modelApi = modelApi.unscoped();
+      }
+      const result = await modelApi.findOne(params);
       await postRead(req, result);
 
       const updatedResponse = _.pick(result, this.generateFields(req, fields, result.dataValues));
-      return [
-        200,
-        await response({ [this.model.toLowerCase()]: updatedResponse }),
-        `${this.model} retrieved successfully`
-      ];
+      return response(
+        {
+          req,
+          model: this.model,
+          status: 200,
+          data: updatedResponse,
+          message: cleanMessage(result, message, `${this.model} retrieved successfully`)
+        }
+      );
     };
   }
 
   list(type) {
     return async (req) => {
       const {
-        preList, list, postList, response, fields, pagination
+        preList, list, postList, response, fields, pagination, message
       } = this.options[type];
 
       await preList();
@@ -130,25 +163,32 @@ class CRUDController {
           )
         )
       );
-      return [
-        200,
-        await response(
-          { [pluralize.plural(this.model.toLowerCase())]: updatedResponse }
-        ),
-        `${this.model} retrieved successfully`,
-        results.pagination
-      ];
+
+      return response(
+        {
+          req,
+          status: 200,
+          model: this.model,
+          data: updatedResponse,
+          message: cleanMessage(
+            updatedResponse, message,
+            `${pluralize.plural(this.model)} retrieved successfully`
+          ),
+          pagination: results.pagination
+        }
+      );
     };
   }
 
   createFieldParam(field, req) {
-    return { [field.name]: req.params[field.name] };
+    const { name, location = 'params' } = field;
+    return { [name]: req[location][name] };
   }
 
   update(type) {
     return async (req) => {
       const {
-        fields, preUpdate, update, postUpdate, response, field
+        fields, preUpdate, update, postUpdate, response, field, message
       } = this.options[type];
       const mapped = _.pick(req.body, this.generateFields(req, fields));
       const changed = _.merge({ ...mapped }, await preUpdate(req));
@@ -160,18 +200,22 @@ class CRUDController {
       await result.reload();
       await postUpdate(result);
 
-      return [
-        201,
-        await response({ [this.model.toLowerCase()]: result }),
-        `${this.model} updated successfully`
-      ];
+      return response(
+        {
+          req,
+          model: this.model,
+          status: 200,
+          data: result,
+          message: cleanMessage(result, message, `${this.model} updated successfully`)
+        }
+      );
     };
   }
 
   delete(type) {
     return async (req) => {
       const {
-        preDelete, delete: _delete, postDelete, response, field
+        preDelete, delete: _delete, postDelete, response, field, message
       } = this.options[type];
       const params = _.merge({ where: this.createFieldParam(field, req) }, await preDelete(req));
 
@@ -179,12 +223,15 @@ class CRUDController {
       await toDelete.destroy(await _delete(req));
       await postDelete(toDelete);
 
-      const deletedResponse = await response(toDelete, req);
-      return [
-        201,
-        deletedResponse,
-        `${this.model} deleted successfully`
-      ];
+      return response(
+        {
+          req,
+          model: this.model,
+          status: 200,
+          data: toDelete,
+          message: cleanMessage(toDelete, message, `${this.model} deleted successfully`)
+        }
+      );
     };
   }
 
@@ -193,7 +240,7 @@ class CRUDController {
     if (endpoint.constructor === Function) {
       newEndpoint = endpoint(field.name ? field.name : field);
     }
-    return `${this.endpoint}/${newEndpoint}`;
+    return `${this.endpoint}${newEndpoint.startsWith('/') ? '' : '/'}${newEndpoint}`;
   }
 
   generateEndpoints(type) {
@@ -206,7 +253,7 @@ class CRUDController {
       const { field } = this.options[type];
       newMiddleware.push(
         BaseValidator.modelExists(
-          field, 'params', models[this.model],
+          field, models[this.model],
           notFound
         )
       );
