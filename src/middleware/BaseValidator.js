@@ -21,14 +21,14 @@ export default class BaseValidator {
     );
   }
 
-  static modelExists(modelField, Model, message) {
+  static modelExists(modelField, Model, message, key) {
     return async (req) => {
       let field = modelField;
       let value = 'params';
       if (field.constructor === Object) {
         const { name, type, location } = field;
         if (/int|integer/i.test(type)) {
-          if (isNaN(req[value][name])) {
+          if (isNaN(req[value][key || name])) {
             req.errorStatus = 404;
             throw new Error('Not found!');
           }
@@ -39,7 +39,7 @@ export default class BaseValidator {
       const throwError = () => {
         let msg = message;
         if (msg) {
-          msg = msg.constructor === Function ? message(req[value][field]) : msg;
+          msg = msg.constructor === Function ? message(req[value][key || field]) : msg;
         } else {
           msg = `${Model.name} not found`;
         }
@@ -47,7 +47,7 @@ export default class BaseValidator {
         throw new Error(msg);
       };
 
-      const found = await Model.findOne({ where: { [field]: req[value][field] } });
+      const found = await Model.findOne({ where: { [field]: req[value][key || field] } });
       if (!found) {
         throwError();
       }

@@ -26,21 +26,27 @@ const cleanMessage = (result, message, defaultMessage) => {
 };
 
 class CRUDController {
-  constructor(model, endpoint, options, config) {
+  constructor(model, endpoint, options, config, Router = new MRouter()) {
     this.model = model;
-    this.config = _.merge({ ...defaultConfig }, config);
+    this.config = _.merge({}, { ...defaultConfig }, config);
     this.endpoint = cleanEndpoint(endpoint);
-    this.Router = new MRouter();
+    this.Router = Router;
     this.defaultMiddleware = this.config.defaultMiddleware;
     this.options = _.merge({}, { ...defaultOptions }, options);
-    Object.keys(this.options).forEach(
+    const endpoints = Object.keys(this.options)
+      .filter(option => !this.config.exclude.includes(option));
+
+    endpoints.forEach(
       type => this.generateEndpoints(type)
     );
+
+    this.generateChildren();
   }
 
   async withPagination(req, pagination, changed) {
     const { query: { page = 1, limit = 10 } } = req;
-    const params = _.merge({ where: { } }, changed);
+    const { parentParams } = this.config;
+    const params = _.merge({ where: { ...parentParams } }, changed);
     if (pagination) {
       params.limit = limit;
       params.offset = (page - 1) * limit;
@@ -87,11 +93,13 @@ class CRUDController {
         response,
         message
       } = this.options[type];
+      req.crud = {};
       const mapped = _.pick(req.body, this.generateFields(req, fields));
-      const changed = _.merge({ ...mapped }, await preCreate(req));
-      const result = await models[this.model].create(changed, await create(req));
+      req.crud.preCreate = await preCreate(req);
+      const changed = _.merge({ ...mapped }, req.crud.preCreate);
+      const result = await models[this.model].create(changed, req.crud.create = await create(req));
       await result.reload();
-      await postCreate(result);
+      req.crud.postCreate = await postCreate(result);
 
       return response(
         {
@@ -111,7 +119,7 @@ class CRUDController {
         field,
         preRead,
         read,
-        modelOptions,
+        unscoped,
         postRead,
         response,
         fields,
@@ -123,7 +131,7 @@ class CRUDController {
       const params = _.merge({ where: this.createFieldParam(field, req) }, changed);
 
       let modelApi = models[this.model];
-      if (modelOptions.unscoped) {
+      if (unscoped) {
         modelApi = modelApi.unscoped();
       }
       const result = await modelApi.findOne(params);
@@ -180,9 +188,25 @@ class CRUDController {
     };
   }
 
+  generateParam(field, endpoint = true) {
+    if (field) {
+      const str = field.name || field;
+      return `${endpoint ? ':' : ''}${this.model.toLowerCase()}${_.capitalize(str)}`;
+    }
+    return field;
+  }
+
   createFieldParam(field, req) {
     const { name, location = 'params' } = field;
-    return { [name]: req[location][name] };
+    const { parent, relation } = this.config;
+    const parentParams = {};
+    if (parent.name) {
+      parentParams[parent.name] = req[parent.location][this.generateParam(parent)];
+    }
+    const params = relation === 'one'
+      ? { [name]: req[location][this.generateParam(field, false)] }
+      : {};
+    return { ...params, ...parentParams };
   }
 
   update(type) {
@@ -236,31 +260,79 @@ class CRUDController {
   }
 
   generateEndpoint(endpoint, field) {
+    const { relation } = this.config;
     let newEndpoint = endpoint;
     if (endpoint.constructor === Function) {
       newEndpoint = endpoint(field.name ? field.name : field);
     }
+    if (field) {
+      const str = field.name || field;
+      newEndpoint = newEndpoint.replace(
+        `:${str}`, this.generateParam(str)
+      );
+    }
+    if (relation === 'one') {
+      return this.endpoint;
+    }
     return `${this.endpoint}${newEndpoint.startsWith('/') ? '' : '/'}${newEndpoint}`;
+  }
+
+  generateChildren() {
+    const { children: { controllers } } = this.config;
+    controllers.forEach((child) => {
+      const {
+        model, endpoint, options, config, field, relation
+      } = child;
+
+      const newConfig = _.merge({}, config, {
+        exclude: relation === 'one' ? ['list'] : [],
+        children: {
+          field
+        },
+        relation
+      });
+
+      const controller = new CRUDController(
+        model,
+        `${this.endpoint}${
+          field.location === 'params' ? cleanEndpoint(`:${field.name}`) : ''
+        }${cleanEndpoint(endpoint)}`,
+        options, newConfig, this.Router
+      );
+    });
   }
 
   generateEndpoints(type) {
     const controller = defaultOptions[this.options[type].controller];
     this.options[type] = _.merge({}, controller, this.options[type]);
     const { middleware } = this.options[type];
-    const { notFound } = this.config;
+    const { notFound, relation } = this.config;
     const newMiddleware = [...middleware];
     if (['delete', 'update', 'read'].includes(this.options[type].controller)) {
       const { field } = this.options[type];
-      newMiddleware.push(
-        BaseValidator.modelExists(
-          field, models[this.model],
-          notFound
-        )
-      );
+      if (relation === 'many') {
+        newMiddleware.push(
+          BaseValidator.modelExists(
+            field,
+            models[this.model],
+            notFound,
+            this.generateParam(field, false)
+          )
+        );
+      } else {
+        newMiddleware.push(async (req) => {
+          const found = await models[this.model].findOne(this.createFieldParam(field, req));
+          if (!found) {
+            req.errorStatus = 404;
+            throw new Error(notFound || `${this.model} not found`);
+          }
+        });
+      }
     }
 
     const { method } = this.options[type];
     const endpoint = this.generateEndpoint(this.options[type].endpoint, this.options[type].field);
+    console.log(method, endpoint);
     this.Router[method](
       endpoint,
       ...this.defaultMiddleware,

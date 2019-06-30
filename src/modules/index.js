@@ -4,12 +4,14 @@ import companies from './companies';
 import profiles from './profiles';
 import CRUDController from '../utils/CRUDController';
 import MRouter from '../utils/router';
+import healthInformation from './healthInformation';
 
 const modules = {
   root,
   users,
   companies,
-  profiles
+  profiles,
+  healthInformation
 };
 
 const apiVersion = '/api/v1';

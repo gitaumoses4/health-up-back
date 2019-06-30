@@ -4,7 +4,7 @@ import BaseValidator from '../../middleware/BaseValidator';
 import UserValidator from '../../middleware/UserValidator';
 import JWT from '../../utils/auth';
 
-const SALT = 10;
+export const SALT = 10;
 
 const register = {
   middleware: [
@@ -32,9 +32,7 @@ const login = {
   endpoint: '/login',
   controller: 'read',
   method: 'post',
-  modelOptions: {
-    unscoped: true
-  },
+  unscoped: true,
   field: { name: 'email', location: 'body', type: 'string' },
   read: () => ({
     include: [

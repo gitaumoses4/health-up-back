@@ -60,7 +60,7 @@ const options = {
       status,
       { [pluralize.plural(model.toLowerCase())]: data },
       message,
-      pagination
+      pagination ? { pagination } : undefined
     ]),
     pagination: null,
     message: ''
@@ -111,7 +111,13 @@ const options = {
 };
 
 const config = {
-  defaultMiddleware: []
+  defaultMiddleware: [],
+  exclude: [],
+  children: {
+    controllers: [],
+    field: {},
+  },
+  parent: {}
 };
 
 export default { options, config };

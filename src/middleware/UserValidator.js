@@ -1,3 +1,6 @@
+import JWT from '../utils/auth';
+import models from '../database/models';
+
 export default class UserValidator {
   static validateEmail(req) {
     const { body: { email } } = req;
@@ -5,5 +8,49 @@ export default class UserValidator {
       req.checkBody('email', 'Please enter a valid email')
         .isEmail();
     }
+  }
+
+  static async authenticate(req) {
+    const auth = req.headers.authorization;
+
+    const token = auth ? auth.split(' ') : [];
+
+    if (token.length !== 2 || token[0].toLowerCase() !== 'bearer') {
+      return [401, undefined, 'Authorization token not provided'];
+    }
+
+    try {
+      const authToken = token[1];
+      const decoded = await JWT.verify(authToken);
+      req.userToken = authToken;
+      req.user = decoded;
+
+      const user = await models.User.findByPk(req.user.id);
+      if (!user) {
+        return [404, undefined, 'User not found'];
+      }
+    } catch (error) {
+      return [401, undefined, 'Invalid authorization token'];
+    }
+  }
+
+  static checkRoles(roles, message) {
+    const response = [401, undefined, message || 'You are not authorized to perform this action'];
+    return async (req) => {
+      const { user: { accountType } } = req;
+      if (roles) {
+        if (roles.constructor === String) {
+          if (roles !== accountType) {
+            return response;
+          }
+        } else if (roles.constructor === Array) {
+          if (!roles.includes(accountType)) {
+            return response;
+          }
+        } else {
+          return response;
+        }
+      }
+    };
   }
 }
