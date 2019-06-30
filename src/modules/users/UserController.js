@@ -6,6 +6,14 @@ import JWT from '../../utils/auth';
 
 export const SALT = 10;
 
+const include = () => ({
+  include: [
+    { model: models.Company, as: 'company' },
+    { model: models.Profile, as: 'profile' },
+    { model: models.HealthInformation, as: 'healthInformation' }
+  ]
+});
+
 const register = {
   middleware: [
     BaseValidator.requiredFields(['email', 'password', 'name']),
@@ -34,12 +42,7 @@ const login = {
   method: 'post',
   unscoped: true,
   field: { name: 'email', location: 'body', type: 'string' },
-  read: () => ({
-    include: [
-      { model: models.Company, as: 'company' },
-      { model: models.Profile, as: 'profile' }
-    ]
-  }),
+  read: include,
   response: async ({
     req, data,
   }) => {

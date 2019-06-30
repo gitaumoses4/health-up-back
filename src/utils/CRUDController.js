@@ -26,11 +26,11 @@ const cleanMessage = (result, message, defaultMessage) => {
 };
 
 class CRUDController {
-  constructor(model, endpoint, options, config, Router = new MRouter()) {
+  constructor(model, endpoint, options, config) {
     this.model = model;
     this.config = _.merge({}, { ...defaultConfig }, config);
     this.endpoint = cleanEndpoint(endpoint);
-    this.Router = Router;
+    this.Router = new MRouter();
     this.defaultMiddleware = this.config.defaultMiddleware;
     this.options = _.merge({}, { ...defaultOptions }, options);
     const endpoints = Object.keys(this.options)
@@ -39,14 +39,11 @@ class CRUDController {
     endpoints.forEach(
       type => this.generateEndpoints(type)
     );
-
-    this.generateChildren();
   }
 
   async withPagination(req, pagination, changed) {
     const { query: { page = 1, limit = 10 } } = req;
-    const { parentParams } = this.config;
-    const params = _.merge({ where: { ...parentParams } }, changed);
+    const params = _.merge({ where: { } }, changed);
     if (pagination) {
       params.limit = limit;
       params.offset = (page - 1) * limit;
@@ -188,25 +185,9 @@ class CRUDController {
     };
   }
 
-  generateParam(field, endpoint = true) {
-    if (field) {
-      const str = field.name || field;
-      return `${endpoint ? ':' : ''}${this.model.toLowerCase()}${_.capitalize(str)}`;
-    }
-    return field;
-  }
-
   createFieldParam(field, req) {
     const { name, location = 'params' } = field;
-    const { parent, relation } = this.config;
-    const parentParams = {};
-    if (parent.name) {
-      parentParams[parent.name] = req[parent.location][this.generateParam(parent)];
-    }
-    const params = relation === 'one'
-      ? { [name]: req[location][this.generateParam(field, false)] }
-      : {};
-    return { ...params, ...parentParams };
+    return { [name]: req[location][name] };
   }
 
   update(type) {
@@ -260,79 +241,31 @@ class CRUDController {
   }
 
   generateEndpoint(endpoint, field) {
-    const { relation } = this.config;
     let newEndpoint = endpoint;
     if (endpoint.constructor === Function) {
       newEndpoint = endpoint(field.name ? field.name : field);
     }
-    if (field) {
-      const str = field.name || field;
-      newEndpoint = newEndpoint.replace(
-        `:${str}`, this.generateParam(str)
-      );
-    }
-    if (relation === 'one') {
-      return this.endpoint;
-    }
     return `${this.endpoint}${newEndpoint.startsWith('/') ? '' : '/'}${newEndpoint}`;
-  }
-
-  generateChildren() {
-    const { children: { controllers } } = this.config;
-    controllers.forEach((child) => {
-      const {
-        model, endpoint, options, config, field, relation
-      } = child;
-
-      const newConfig = _.merge({}, config, {
-        exclude: relation === 'one' ? ['list'] : [],
-        children: {
-          field
-        },
-        relation
-      });
-
-      const controller = new CRUDController(
-        model,
-        `${this.endpoint}${
-          field.location === 'params' ? cleanEndpoint(`:${field.name}`) : ''
-        }${cleanEndpoint(endpoint)}`,
-        options, newConfig, this.Router
-      );
-    });
   }
 
   generateEndpoints(type) {
     const controller = defaultOptions[this.options[type].controller];
     this.options[type] = _.merge({}, controller, this.options[type]);
     const { middleware } = this.options[type];
-    const { notFound, relation } = this.config;
+    const { notFound } = this.config;
     const newMiddleware = [...middleware];
     if (['delete', 'update', 'read'].includes(this.options[type].controller)) {
       const { field } = this.options[type];
-      if (relation === 'many') {
-        newMiddleware.push(
-          BaseValidator.modelExists(
-            field,
-            models[this.model],
-            notFound,
-            this.generateParam(field, false)
-          )
-        );
-      } else {
-        newMiddleware.push(async (req) => {
-          const found = await models[this.model].findOne(this.createFieldParam(field, req));
-          if (!found) {
-            req.errorStatus = 404;
-            throw new Error(notFound || `${this.model} not found`);
-          }
-        });
-      }
+      newMiddleware.push(
+        BaseValidator.modelExists(
+          field, models[this.model],
+          notFound
+        )
+      );
     }
 
     const { method } = this.options[type];
     const endpoint = this.generateEndpoint(this.options[type].endpoint, this.options[type].field);
-    console.log(method, endpoint);
     this.Router[method](
       endpoint,
       ...this.defaultMiddleware,
