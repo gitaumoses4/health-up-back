@@ -1,3 +1,5 @@
+import pluralize from 'pluralize';
+
 const options = {
   create: {
     fields: [],
@@ -8,7 +10,14 @@ const options = {
     endpoint: '',
     controller: 'create',
     method: 'post',
-    response: result => result
+    response: ({
+      req, model, status, data, message
+    }) => ([
+      status,
+      { [model.toLowerCase()]: data },
+      message
+    ]),
+    message: ''
   },
   read: {
     middleware: [],
@@ -25,7 +34,14 @@ const options = {
     endpoint: field => `:${field}`,
     method: 'get',
     controller: 'read',
-    response: result => result,
+    response: ({
+      req, model, status, data, message
+    }) => ([
+      status,
+      { [model.toLowerCase()]: data },
+      message
+    ]),
+    message: ''
   },
   list: {
     middleware: [],
@@ -38,8 +54,16 @@ const options = {
     endpoint: '',
     method: 'get',
     controller: 'list',
-    response: result => result,
-    pagination: null
+    response: ({
+      req, model, status, data, message, pagination
+    }) => ([
+      status,
+      { [pluralize.plural(model.toLowerCase())]: data },
+      message,
+      pagination ? { pagination } : undefined
+    ]),
+    pagination: null,
+    message: ''
   },
   update: {
     fields: [],
@@ -54,7 +78,14 @@ const options = {
       type: 'integer'
     },
     postUpdate: (req, result) => {},
-    response: result => result,
+    response: ({
+      req, model, status, data, message
+    }) => ([
+      status,
+      { [model.toLowerCase()]: data },
+      message
+    ]),
+    message: ''
   },
   delete: {
     field: {
@@ -68,12 +99,25 @@ const options = {
     endpoint: field => `:${field}`,
     controller: 'delete',
     postDelete: (req, result) => {},
-    response: result => result,
+    response: ({
+      req, model, status, data, message
+    }) => ([
+      status,
+      { [model.toLowerCase()]: data },
+      message
+    ]),
+    message: ''
   }
 };
 
 const config = {
-  defaultMiddleware: []
+  defaultMiddleware: [],
+  exclude: [],
+  children: {
+    controllers: [],
+    field: {},
+  },
+  parent: {}
 };
 
 export default { options, config };

@@ -18,11 +18,6 @@ const controller = new CRUDController('Profile', '/profiles', {
   read: {
     read: include,
   },
-  list: {
-    pagination: {
-      limit: 10
-    }
-  },
   update: {
     fields: '*',
     update: include,
