@@ -9,7 +9,7 @@ const modules = {
   root,
   users,
   companies,
-  profiles
+  profiles,
 };
 
 const apiVersion = '/api/v1';

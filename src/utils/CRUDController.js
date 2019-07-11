@@ -18,7 +18,7 @@ const cleanEndpoint = (endpoint) => {
 class CRUDController {
   constructor(model, endpoint, options, config) {
     this.model = model;
-    this.config = _.merge({ ...defaultConfig }, config);
+    this.config = _.merge({}, { ...defaultConfig }, config);
     this.endpoint = cleanEndpoint(endpoint);
     this.Router = new MRouter();
     this.defaultMiddleware = this.config.defaultMiddleware;
