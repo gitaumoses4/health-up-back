@@ -59,7 +59,7 @@ export default class BaseValidator {
       return [
         422,
         {
-          errors: errors.map(error => ({ message: error.msg, param: error.param }))
+          errors: errors.reduce((acc, error) => ({ ...acc, [error.param]: error.msg }), {})
         },
         'Validation error'
       ];

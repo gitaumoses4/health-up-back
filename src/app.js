@@ -1,6 +1,7 @@
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import cors from 'cors';
 import expressValidator from 'express-validator';
 import express from 'express';
 import modules from './modules';
@@ -22,7 +23,10 @@ if (process.env.USE_LATENCY === 'true') {
   });
 }
 
+app.use(cors());
+
 modules(app);
+
 
 // catch 404 and forward to error handler
 app.use((req, res) => {
