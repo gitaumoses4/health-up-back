@@ -4,6 +4,7 @@ import MRouter from './router';
 import models from '../database/models';
 import crudOptions from './crudOptions';
 import BaseValidator from '../middleware/BaseValidator';
+import UserValidator from "../middleware/UserValidator";
 
 
 const { options: defaultOptions, config: defaultConfig } = crudOptions;
@@ -125,7 +126,7 @@ class CRUDController {
 
       await preRead();
       const changed = await read(req);
-      const params = _.merge({ where: this.createFieldParam(field, req) }, changed);
+      const params = _.merge({}, { where: this.createFieldParam(field, req) }, changed);
 
       let modelApi = models[this.model];
       if (unscoped) {
@@ -256,12 +257,16 @@ class CRUDController {
     const newMiddleware = [...middleware];
     if (['delete', 'update', 'read'].includes(this.options[type].controller)) {
       const { field } = this.options[type];
-      newMiddleware.push(
-        BaseValidator.modelExists(
-          field, models[this.model],
-          notFound
-        )
-      );
+      newMiddleware.push(UserValidator.authenticate);
+      // newMiddleware.push(
+      //   BaseValidator.modelExists(
+      //     field, models[this.model],
+      //     notFound
+      //   )
+      // );
+    }
+    if( type === 'profile'){
+      console.log(newMiddleware);
     }
 
     const { method } = this.options[type];

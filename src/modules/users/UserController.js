@@ -55,4 +55,17 @@ const login = {
   }
 };
 
-export default { login, register };
+const profile = {
+  middleware: [
+    UserValidator.authenticate,
+  ],
+  endpoint: '/profile',
+  controller: 'read',
+  field: { name: 'id', location: 'user', type: 'integer' },
+};
+
+export default {
+  login,
+  register,
+  profile
+};

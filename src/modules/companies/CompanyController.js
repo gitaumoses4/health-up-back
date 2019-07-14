@@ -30,7 +30,7 @@ const register = {
   fields: '*',
   middleware: [
     BaseValidator.requiredFields(
-      ['accountType', 'name', 'email', 'password', 'registrationNumber', 'noOfEmployees', 'receipt']
+      ['accountType', 'name', 'email', 'password', 'registrationNumber', 'noOfEmployees']
     ),
     UserValidator.validateEmail,
     BaseValidator.uniqueFields({ email: 'The email provided is already in use', }, models.User),
