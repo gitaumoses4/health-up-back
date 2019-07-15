@@ -1,15 +1,12 @@
 import root from './root';
 import users from './users';
-import companies from './companies';
-import profiles from './profiles';
-import CRUDController from '../utils/CRUDController';
 import MRouter from '../utils/router';
+import profiles from './profiles';
 import healthInformation from './healthInformation';
 
 const modules = {
   root,
   users,
-  companies,
   profiles,
   healthInformation
 };
@@ -21,9 +18,7 @@ const apiVersion = '/api/v1';
 export default (app) => {
   const createEndpoint = (module, route) => {
     let router = route;
-    if (route.constructor === CRUDController) {
-      router = router.Router.Router;
-    } else if (route.constructor === MRouter) {
+    if (route.constructor === MRouter) {
       router = router.Router;
     }
     app.use(apiVersion, router);
