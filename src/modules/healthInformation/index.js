@@ -1,8 +1,15 @@
-import CRUDController from '../../utils/CRUDController';
+import MRouter from '../../utils/router';
+import UserValidator from '../../middleware/UserValidator';
+import HealthInformationController from './HealthInformationController';
 
-export default new CRUDController('HealthInformation', '/healthInformation', {
-  create: {
-    fields: '*',
-    preCreate: () => ({ userId: 1 })
-  }
-}, {});
+const Router = new MRouter(
+  UserValidator.authenticate
+);
+
+Router.put('/healthInformation',
+  HealthInformationController.createHealthInformation);
+
+Router.get('/healthInformation',
+  HealthInformationController.retrieveHealthInformation);
+
+export default Router;
