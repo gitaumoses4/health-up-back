@@ -22,7 +22,7 @@ class UserController {
       email, name, password: encryptedPassword, accountType
     });
 
-    if (accountType === 'Company') {
+    if (accountType === 'company') {
       const {
         naturalBusiness, registrationNumber, noOfEmployees, responsibleName, receipt
       } = req.body;
