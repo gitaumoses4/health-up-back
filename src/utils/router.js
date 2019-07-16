@@ -1,4 +1,5 @@
 import * as express from 'express';
+import m from '../database/models';
 import Validation from '../middleware/BaseValidator';
 
 const errorHandler = middleware => middleware.map(m => Validation.withErrorHandler(m));
@@ -48,5 +49,8 @@ class MRouter {
     return [...list, ...middleware];
   }
 }
+
+
+export const models = m;
 
 export default MRouter;

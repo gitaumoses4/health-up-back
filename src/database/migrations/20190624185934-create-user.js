@@ -17,8 +17,8 @@ module.exports = {
     },
     accountType: {
       allowNull: false,
-      defaultValue: 'Normal',
-      type: Sequelize.ENUM('Normal', 'Company', 'Admin', 'Ambulance')
+      defaultValue: 'normal_user',
+      type: Sequelize.ENUM('normal_user', 'company', 'admin', 'ambulance_man')
     },
     password: {
       allowNull: false,
@@ -37,5 +37,8 @@ module.exports = {
       type: Sequelize.DATE
     }
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('Users'),
+  down: (queryInterface, Sequelize) => Promise.all([
+    queryInterface.dropTable('Users'),
+    queryInterface.sequelize.query('DROP TYPE "enum_Users_accountType"'),
+  ]),
 };
