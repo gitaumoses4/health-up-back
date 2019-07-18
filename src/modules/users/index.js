@@ -15,6 +15,11 @@ Router.post('/register',
 Router.post('/login',
   BaseValidator.requiredFields(['email', 'password']),
   UserValidator.validateEmail,
+  BaseValidator.modelExists(
+    ({ body: { email } }) => ({ email }),
+    models.User,
+    T.user_does_not_exist
+  ),
   UserController.loginUser);
 
 Router.get('/user',

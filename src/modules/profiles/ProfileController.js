@@ -1,21 +1,29 @@
+import _ from 'lodash';
 import models from '../../database/models';
 
 class ProfileController {
   static async updateProfile(req) {
     const { user } = req;
 
-    const profile = await models.Profile.findOrCreate({
-      where: { userId: user.id },
-      defaults: { ...req.body, userId: user.id },
-      include: [{
-        model: models.User,
-        as: 'user'
-      }]
-    });
+    const include = [{ model: models.User, as: 'user' }];
 
-    await profile[0].reload();
+    let profile = await models.Profile.findOne({ where: { userId: user.id } });
+    let data = req.body;
 
-    return [201, { profile: profile[0] }];
+    if (profile) {
+      const { healthInformation, personalInformation, generalInformation } = profile;
+
+      data = _.merge({}, { healthInformation, personalInformation, generalInformation }, data);
+      await profile.update({
+        ...data
+      });
+    } else {
+      profile = await models.Profile.create({ ...req.body, userId: user.id }, { include });
+    }
+
+    await profile.reload();
+
+    return [201, { profile }];
   }
 
 

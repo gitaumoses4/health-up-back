@@ -12,7 +12,6 @@ module.exports = {
         },
       },
       'fullName',
-      'medicalFileNumber',
       'idNumber',
       'nationality',
       {
@@ -25,27 +24,29 @@ module.exports = {
         dateOfBirth: {
           type: Sequelize.DATE,
           allowNull: true
-        },
-      },
-      'location',
-      'placeOfResidence',
-      'mobileNumber',
-      'emergencyNumber1',
-      'emergencyNumber2',
-      'bloodType',
-      {
-        smoker: {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false
         }
       },
-      'drugsUsed',
-      'operations',
-      'familyHistory',
-      'currentIllness',
-      'allergies',
-      'height',
-      'weight',
+      {
+        personalInformation: {
+          type: Sequelize.JSON,
+          allowNull: true,
+          defaultValue: {}
+        }
+      },
+      {
+        healthInformation: {
+          type: Sequelize.JSON,
+          allowNull: true,
+          defaultValue: {}
+        }
+      },
+      {
+        generalInformation: {
+          type: Sequelize.JSON,
+          allowNull: true,
+          defaultValue: {}
+        }
+      },
       {
         userId: {
           type: Sequelize.INTEGER,

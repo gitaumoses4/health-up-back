@@ -3,19 +3,25 @@ import models from '../../database/models';
 class HealthInformationController {
   static async createHealthInformation(req) {
     const { user } = req;
+    const include = [{ model: models.User, as: 'user' }];
 
-    const healthInformation = await models.HealthInformation.findOrCreate({
-      where: { userId: user.id },
-      defaults: { ...req.body, userId: user.id },
-      include: [{
-        model: models.User,
-        as: 'user'
-      }]
+    let healthInformation = await models.HealthInformation.findOne({
+      where: { userId: user.id }, include
     });
 
-    await healthInformation[0].reload();
+    if (healthInformation) {
+      await healthInformation.update({ ...req.body });
+    } else {
+      healthInformation = await models.HealthInformation.create({
+        ...req.body,
+        userId: user.id
+      },
+      { include });
+    }
 
-    return [200, { healthInformation: healthInformation[0] }];
+    await healthInformation.reload();
+
+    return [200, { healthInformation }];
   }
 
 
