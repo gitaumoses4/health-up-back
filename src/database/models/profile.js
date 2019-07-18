@@ -3,7 +3,6 @@ const generateFields = require('../../utils/db');
 module.exports = (sequelize, DataTypes) => {
   const Profile = sequelize.define('Profile', generateFields(DataTypes, [
     'fullName',
-    'medicalFileNumber',
     'idNumber',
     'nationality',
     {
@@ -18,25 +17,27 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
       },
     },
-    'location',
-    'placeOfResidence',
-    'mobileNumber',
-    'emergencyNumber1',
-    'emergencyNumber2',
-    'bloodType',
     {
-      smoker: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+      personalInformation: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {}
       }
     },
-    'drugsUsed',
-    'operations',
-    'familyHistory',
-    'currentIllness',
-    'allergies',
-    'height',
-    'weight',
+    {
+      generalInformation: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {}
+      }
+    },
+    {
+      healthInformation: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {}
+      }
+    }
   ]), {});
   Profile.associate = (models) => {
     Profile.belongsTo(models.User, {
