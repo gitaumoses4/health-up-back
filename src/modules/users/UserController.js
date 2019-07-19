@@ -63,6 +63,14 @@ class UserController {
 
     return [200, { user }];
   }
+
+  static async updatePassword(req) {
+    const { user, body: { password } } = req;
+
+    await user.update({ password: await bcrypt.hash(password, SALT) });
+
+    return [200, { user }, T.password_updated];
+  }
 }
 
 export default UserController;
