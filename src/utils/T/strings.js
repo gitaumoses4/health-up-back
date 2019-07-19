@@ -7,5 +7,7 @@ export default {
   ambulance_man: ['Ambulance Man', 'المسعف'],
   admin: ['Admin', 'لمشرف'],
   normal_user: ['Normal', 'فرد'],
-  user_does_not_exist: ['User with this email does not exist']
+  user_does_not_exist: ['User with this email does not exist'],
+  password_updated: ['Password updated successfully'],
+  successful: ['Successful']
 };

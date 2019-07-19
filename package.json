@@ -7,7 +7,7 @@
     "clean": "rm -rf dist && mkdir dist",
     "build": "babel . --ignore node_modules,test,coverage,dist -d dist/ ",
     "serve": "node dist/src/index.js",
-    "start": "NODE_ENV=production yarn run build && yarn run serve",
+    "start": "NODE_ENV=production yarn run build && yarn db:migrate && yarn run serve",
     "start:dev": "NODE_ENV=development  DEBUG=log  nodemon --exec babel-node src/index.js",
     "lint": "node_modules/.bin/eslint ./src",
     "pretest": "NODE_ENV=test yarn db:migrate",

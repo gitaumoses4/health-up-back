@@ -26,4 +26,8 @@ Router.get('/user',
   UserValidator.authenticate,
   UserController.retrieveUser);
 
+Router.put('/updatePassword',
+  UserValidator.authenticate,
+  UserController.updatePassword);
+
 export default Router;
