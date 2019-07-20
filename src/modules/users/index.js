@@ -36,4 +36,9 @@ Router.get('/users/:id',
   UserValidator.checkRoles([COMPANY, ADMINISTRATOR, AMBULANCE_MAN]),
   UserController.getUserProfile);
 
+Router.get('/users',
+  UserValidator.authenticate,
+  UserValidator.checkRoles([COMPANY, ADMINISTRATOR, AMBULANCE_MAN]),
+  UserController.searchUsers);
+
 export default Router;

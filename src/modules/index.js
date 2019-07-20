@@ -4,13 +4,15 @@ import MRouter from '../utils/router';
 import profiles from './profiles';
 import healthInformation from './healthInformation';
 import companies from './companies';
+import admin from './admin';
 
 const modules = {
   root,
   users,
   profiles,
   healthInformation,
-  companies
+  companies,
+  admin
 };
 
 const apiVersion = '/api/v1';
