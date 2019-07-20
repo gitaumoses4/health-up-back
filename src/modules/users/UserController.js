@@ -3,6 +3,7 @@ import models from '../../database/models';
 import JWT from '../../utils/auth';
 import T from '../../utils/T';
 import { NORMAL_USER } from '../../utils/accountTypes';
+import BaseValidator from '../../middleware/BaseValidator';
 
 export const SALT = 10;
 const include = [
@@ -87,6 +88,18 @@ class UserController {
     await user.update({ password: await bcrypt.hash(password, SALT) });
 
     return [200, { user }, T.password_updated];
+  }
+
+  static async searchUsers(req) {
+    const { query: { search } } = req;
+    const users = await models.User.findAll({
+      where: {
+        ...BaseValidator.createSearchFields(['email', 'name'], search),
+        accountType: NORMAL_USER
+      }
+    });
+
+    return [200, { users }];
   }
 }
 
