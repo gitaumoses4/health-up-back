@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     ophthalmologist: {
       type: DataTypes.DATE
     },
-    eyeDoctor: {
+    earDoctor: {
       type: DataTypes.DATE
     },
     bloodAnalysis: {
