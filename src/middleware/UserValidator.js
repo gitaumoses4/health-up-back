@@ -1,5 +1,6 @@
 import JWT from '../utils/auth';
 import models from '../database/models';
+import T from '../utils/T';
 
 export default class UserValidator {
   static validateEmail(req) {
@@ -56,5 +57,12 @@ export default class UserValidator {
         }
       }
     };
+  }
+
+  static checkVerified(req) {
+    const { user: { company: { verified } } } = req;
+    if (!verified) {
+      return [403, undefined, T.account_not_verified];
+    }
   }
 }

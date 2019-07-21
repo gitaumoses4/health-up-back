@@ -10,5 +10,8 @@ export default {
   user_does_not_exist: ['User with this email does not exist'],
   password_updated: ['Password updated successfully'],
   successful: ['Successful'],
-  not_found: ['Not found']
+  not_found: ['Not found'],
+  account_not_verified: ['Your account has not been verified. Please contact the administrator.'],
+  notification_created: ['Notification has been created successfully'],
+  notification_exists: ['Notification already exists']
 };
