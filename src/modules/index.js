@@ -5,6 +5,7 @@ import profiles from './profiles';
 import healthInformation from './healthInformation';
 import companies from './companies';
 import admin from './admin';
+import notifications from './notifications';
 
 const modules = {
   root,
@@ -12,7 +13,8 @@ const modules = {
   profiles,
   healthInformation,
   companies,
-  admin
+  admin,
+  notifications
 };
 
 const apiVersion = '/api/v1';
