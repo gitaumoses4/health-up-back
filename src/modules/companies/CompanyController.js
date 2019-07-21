@@ -4,7 +4,7 @@ import UserController from '../users/UserController';
 
 const include = [{
   model: models.User,
-  as: 'owner'
+  as: 'owner',
 }];
 class CompanyController {
   static async updateProfile(req) {

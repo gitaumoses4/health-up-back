@@ -20,12 +20,35 @@ module.exports = {
         as: 'types'
       }
     },
+    notificationConditionId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      onDelete: 'cascade',
+      references: {
+        model: 'NotificationConditions',
+        as: 'condition'
+      }
+    },
     time: {
       type: Sequelize.TIME,
       allowNull: false,
+      defaultValue: '00:00'
     },
-    date: {
-      type: Sequelize.DATE,
+    weekDay: {
+      type: Sequelize.ENUM(
+        'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+      ),
+      allowNull: true,
+    },
+    month: {
+      type: Sequelize.ENUM(
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
+      ),
+      allowNull: true
+    },
+    day: {
+      type: Sequelize.INTEGER,
       allowNull: true
     },
     frequency: {
@@ -45,5 +68,7 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('SystemNotifications');
     await queryInterface.sequelize.query('DROP TYPE "enum_SystemNotifications_frequency"');
+    await queryInterface.sequelize.query('DROP TYPE "enum_SystemNotifications_month"');
+    await queryInterface.sequelize.query('DROP TYPE "enum_SystemNotifications_weekDay"');
   }
 };

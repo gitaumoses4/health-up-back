@@ -9,4 +9,10 @@ const Router = new MRouter(UserValidator.authenticate, UserValidator.checkRoles(
 Router.get('/notifications/types',
   NotificationController.getNotificationTypes);
 
+
+Router.get('/notifications/types/:id',
+  NotificationController.getNotificationType);
+
+Router.post('/notifications/types/:id',
+  NotificationController.createNotification);
 export default Router;
