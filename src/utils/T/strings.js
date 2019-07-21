@@ -13,5 +13,6 @@ export default {
   not_found: ['Not found'],
   account_not_verified: ['Your account has not been verified. Please contact the administrator.'],
   notification_created: ['Notification has been created successfully'],
-  notification_exists: ['Notification already exists']
+  notification_updated: ['Notification has been updated successfully'],
+  notification_deleted_successfully: ['Notification deleted successfully']
 };

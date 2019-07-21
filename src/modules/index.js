@@ -6,6 +6,7 @@ import healthInformation from './healthInformation';
 import companies from './companies';
 import admin from './admin';
 import notifications from './notifications';
+import notificationBuilder from './notificationBuilder';
 
 const modules = {
   root,
@@ -14,6 +15,7 @@ const modules = {
   healthInformation,
   companies,
   admin,
+  notificationBuilder,
   notifications
 };
 

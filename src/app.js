@@ -5,6 +5,7 @@ import cors from 'cors';
 import expressValidator from 'express-validator';
 import express from 'express';
 import modules from './modules';
+import Notifications from './utils/Notifications';
 
 const app = express();
 
@@ -22,6 +23,8 @@ if (process.env.USE_LATENCY === 'true') {
     setTimeout(next, 2000);
   });
 }
+
+Notifications.scheduleNotifications();
 
 app.use(cors());
 

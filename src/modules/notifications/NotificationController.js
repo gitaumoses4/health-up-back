@@ -1,76 +1,81 @@
-import _ from 'lodash';
-import { Op } from 'sequelize';
 import models from '../../database/models';
-import T from '../../utils/T';
 
-const notificationTypeInclude = [
-  {
-    model: models.NotificationCondition,
-    as: 'conditions',
-    through: {
-      attributes: []
-    }
-  },
-  {
-    model: models.SystemNotification,
-    as: 'notifications'
-  }
-];
+
+const include = [{
+  model: models.SystemNotification,
+  as: 'systemNotification',
+}];
 
 class NotificationController {
-  static async getNotificationTypes(req) {
-    const notificationTypes = await models.NotificationType.findAll({
-      include: notificationTypeInclude,
-    });
-    return [200, { notificationTypes }];
-  }
-
-  static async getNotificationType(req) {
-    const { params: { id } } = req;
-    const notificationType = await models.NotificationType.findByPk(id, {
-      include: notificationTypeInclude
-    });
-
-    return [200, { notificationType }];
-  }
-
-  static async createNotification(req) {
-    const {
-      body: {
-        text, time, weekDay,
-        month, day, frequency,
-        condition: notificationConditionId = null
-      }, params: { id }
-    } = req;
-
-
-    const query = {
-      text,
-      time,
-      weekDay,
-      month,
-      day,
-      frequency,
-      notificationConditionId
-    };
-    const [notification, created] = await models.SystemNotification.findOrCreate({
-      defaults: { ...query },
+  static async getAllNotifications(req) {
+    const { user: { id } } = req;
+    const notifications = await models.Notification.findAll({
       where: {
-        notificationTypeId: id,
-        text,
-        notificationConditionId
+        recipientId: id
       },
+      include
+    });
+    return [200, { notifications }];
+  }
+
+  static async getUnreadNotifications(req) {
+    const { user: { id } } = req;
+    const notifications = await models.Notification.findAll({
+      where: {
+        recipientId: id,
+        status: 'unread'
+      },
+      include
+    });
+    return [200, { notifications }];
+  }
+
+  static async getReadNotifications(req) {
+    const { user: { id } } = req;
+    const notifications = await models.Notification.findAll({
+      where: {
+        recipientId: id,
+        status: 'read'
+      },
+      include
+    });
+    return [200, { notifications }];
+  }
+
+  static async readNotification(req) {
+    const { params: { id: notificationId } } = req;
+
+    const notification = await models.Notification.findByPk(notificationId, {
+      include
     });
 
+    if (notification) {
+      await notification.update({ status: 'read' });
+    }
 
-    const notificationType = await models.NotificationType.findByPk(id, {
-      include: notificationTypeInclude,
+    await notification.reload();
+
+    return [200, { notification }];
+  }
+
+  static async markAllAsRead(req) {
+    const { user: { id } } = req;
+
+    await models.Notification.update({ status: 'read' }, {
+      where: {
+        recipientId: id
+      },
+      include,
+    });
+    
+    const notifications = await models.Notification.findAll({
+      where: {
+        recipientId: id
+      },
+      include
     });
 
-    return [
-      created ? 201 : 200,
-      { notificationType },
-      created ? T.notification_created : T.notification_exists];
+    return [200, { notifications }];
   }
 }
 

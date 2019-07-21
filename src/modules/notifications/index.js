@@ -1,18 +1,22 @@
 import MRouter from '../../utils/router';
 import UserValidator from '../../middleware/UserValidator';
-import { ADMINISTRATOR } from '../../utils/accountTypes';
 import NotificationController from './NotificationController';
 
-const Router = new MRouter(UserValidator.authenticate, UserValidator.checkRoles(ADMINISTRATOR));
+const Router = new MRouter(UserValidator.authenticate);
 
+Router.get('/notifications/',
+  NotificationController.getAllNotifications);
 
-Router.get('/notifications/types',
-  NotificationController.getNotificationTypes);
+Router.get('/notifications/unread',
+  NotificationController.getUnreadNotifications);
 
+Router.get('/notifications/read',
+  NotificationController.getReadNotifications);
 
-Router.get('/notifications/types/:id',
-  NotificationController.getNotificationType);
+Router.put('/notifications/read/:id',
+  NotificationController.readNotification);
 
-Router.post('/notifications/types/:id',
-  NotificationController.createNotification);
+Router.put('/notifications/read',
+  NotificationController.markAllAsRead);
+
 export default Router;
