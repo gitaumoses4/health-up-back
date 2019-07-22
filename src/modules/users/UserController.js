@@ -2,6 +2,8 @@ import * as bcrypt from 'bcrypt';
 import models from '../../database/models';
 import JWT from '../../utils/auth';
 import T from '../../utils/T';
+import { NORMAL_USER } from '../../utils/accountTypes';
+import BaseValidator from '../../middleware/BaseValidator';
 
 export const SALT = 10;
 const include = [
@@ -11,9 +13,9 @@ const include = [
 ];
 
 class UserController {
-  static async registerUser(req) {
+  static async createUserAccount(req) {
     const {
-      password, name, email, accountType
+      password, name, email, accountType = NORMAL_USER
     } = req.body;
 
     const encryptedPassword = await bcrypt.hash(password, SALT);
@@ -21,7 +23,12 @@ class UserController {
     const user = await models.User.create({
       email, name, password: encryptedPassword, accountType
     });
+    return user;
+  }
 
+  static async registerUser(req) {
+    const { body: { accountType = NORMAL_USER } } = req;
+    const user = await UserController.createUserAccount(req);
     if (accountType === 'company') {
       const {
         naturalBusiness, registrationNumber, noOfEmployees, responsibleName, receipt
@@ -62,6 +69,37 @@ class UserController {
     const user = await models.User.findOne({ where: { id }, include });
 
     return [200, { user }];
+  }
+
+  static async getUserProfile(req) {
+    const { params: { id } } = req;
+
+    const user = await models.User.findOne({ where: { id }, include });
+    if (!user) {
+      return [404, undefined, T.user_does_not_exist];
+    }
+
+    return [200, { user }];
+  }
+
+  static async updatePassword(req) {
+    const { user, body: { password } } = req;
+
+    await user.update({ password: await bcrypt.hash(password, SALT) });
+
+    return [200, { user }, T.password_updated];
+  }
+
+  static async searchUsers(req) {
+    const { query: { search } } = req;
+    const users = await models.User.findAll({
+      where: {
+        ...BaseValidator.createSearchFields(['email', 'name'], search),
+        accountType: NORMAL_USER
+      }
+    });
+
+    return [200, { users }];
   }
 }
 

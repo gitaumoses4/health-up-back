@@ -18,7 +18,12 @@ module.exports = {
     accountType: {
       allowNull: false,
       defaultValue: 'normal_user',
-      type: Sequelize.ENUM('normal_user', 'company', 'admin', 'ambulance_man')
+      type: Sequelize.ENUM(
+        'normal_user',
+        'company',
+        'admin',
+        'ambulance_man'
+      )
     },
     password: {
       allowNull: false,

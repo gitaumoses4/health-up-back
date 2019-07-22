@@ -1,5 +1,6 @@
 import JWT from '../utils/auth';
 import models from '../database/models';
+import T from '../utils/T';
 
 export default class UserValidator {
   static validateEmail(req) {
@@ -23,10 +24,14 @@ export default class UserValidator {
       const authToken = token[1];
       const decoded = await JWT.verify(authToken);
       req.userToken = authToken;
-      req.user = decoded;
 
-      const user = await models.User.findByPk(req.user.id);
-      if (!user) {
+      req.user = await models.User.findByPk(decoded.id, {
+        include: [{
+          model: models.Company,
+          as: 'company'
+        }]
+      });
+      if (!req.user) {
         return [404, undefined, 'User not found'];
       }
     } catch (error) {
@@ -52,5 +57,12 @@ export default class UserValidator {
         }
       }
     };
+  }
+
+  static checkVerified(req) {
+    const { user: { company: { verified } } } = req;
+    if (!verified) {
+      return [403, undefined, T.account_not_verified];
+    }
   }
 }

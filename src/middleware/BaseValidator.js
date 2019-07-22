@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Op } from 'sequelize';
 
 export default class BaseValidator {
   static async checkField(req, field, Model, message) {
@@ -11,6 +12,17 @@ export default class BaseValidator {
     req.checkBody(field, message
       || `${_.capitalize(_.startCase(field))} should be unique`)
       .custom(() => exists === null);
+  }
+
+  static createSearchFields(fields, search) {
+    return {
+      [Op.or]: fields.reduce((acc, field) => ({
+        ...acc,
+        [field]: {
+          [Op.iLike]: `%${search}%`
+        }
+      }), {})
+    };
   }
 
   static uniqueFields(fields, Model) {

@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'healthInformation'
     });
+    User.belongsTo(models.Company, {
+      foreignKey: 'worksFor',
+      as: 'employer'
+    });
   };
   return User;
 };

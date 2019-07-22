@@ -3,12 +3,20 @@ import users from './users';
 import MRouter from '../utils/router';
 import profiles from './profiles';
 import healthInformation from './healthInformation';
+import companies from './companies';
+import admin from './admin';
+import notifications from './notifications';
+import notificationBuilder from './notificationBuilder';
 
 const modules = {
   root,
   users,
   profiles,
-  healthInformation
+  healthInformation,
+  companies,
+  admin,
+  notificationBuilder,
+  notifications
 };
 
 const apiVersion = '/api/v1';

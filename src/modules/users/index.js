@@ -3,6 +3,7 @@ import BaseValidator from '../../middleware/BaseValidator';
 import UserValidator from '../../middleware/UserValidator';
 import UserController from './UserController';
 import T from '../../utils/T';
+import { ADMINISTRATOR, AMBULANCE_MAN, COMPANY } from '../../utils/accountTypes';
 
 const Router = new MRouter();
 
@@ -25,5 +26,19 @@ Router.post('/login',
 Router.get('/user',
   UserValidator.authenticate,
   UserController.retrieveUser);
+
+Router.put('/updatePassword',
+  UserValidator.authenticate,
+  UserController.updatePassword);
+
+Router.get('/users/:id',
+  UserValidator.authenticate,
+  UserValidator.checkRoles([COMPANY, ADMINISTRATOR, AMBULANCE_MAN]),
+  UserController.getUserProfile);
+
+Router.get('/users',
+  UserValidator.authenticate,
+  UserValidator.checkRoles([COMPANY, ADMINISTRATOR, AMBULANCE_MAN]),
+  UserController.searchUsers);
 
 export default Router;
