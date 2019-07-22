@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Op } from 'sequelize';
 import models from '../../database/models';
 import T from '../../utils/T';
+import Notifications from '../../utils/Notifications';
 
 const notificationTypeInclude = [
   {
@@ -75,6 +76,7 @@ class NotificationBuilderController {
       include: notificationTypeInclude,
     });
 
+    await Notifications.scheduleNotifications();
     return [
       updated ? 200 : 201,
       { notificationType },
@@ -93,6 +95,8 @@ class NotificationBuilderController {
     const notificationType = await models.NotificationType.findByPk(id, {
       include: notificationTypeInclude,
     });
+
+    await Notifications.scheduleNotifications();
 
     return [200, { notificationType }, T.notification_deleted_successfully];
   }

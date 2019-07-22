@@ -13,7 +13,8 @@ class NotificationController {
       where: {
         recipientId: id
       },
-      include
+      include,
+      order: [['createdAt', 'desc']]
     });
     return [200, { notifications }];
   }
@@ -25,7 +26,8 @@ class NotificationController {
         recipientId: id,
         status: 'unread'
       },
-      include
+      include,
+      order: [['createdAt', 'desc']]
     });
     return [200, { notifications }];
   }
@@ -37,7 +39,8 @@ class NotificationController {
         recipientId: id,
         status: 'read'
       },
-      include
+      include,
+      order: [['createdAt', 'desc']]
     });
     return [200, { notifications }];
   }
@@ -72,10 +75,27 @@ class NotificationController {
       where: {
         recipientId: id
       },
-      include
+      include,
+      order: [['createdAt', 'desc']]
     });
 
     return [200, { notifications }];
+  }
+
+  static async setDelivered(req) {
+    const { params: { id: notificationId } } = req;
+
+    const notification = await models.Notification.findByPk(notificationId, {
+      include
+    });
+
+    if (notification && notification.status === 'sent') {
+      await notification.update({ status: 'unread' });
+    }
+
+    await notification.reload();
+
+    return [200, { notification }];
   }
 }
 

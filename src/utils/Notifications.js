@@ -29,7 +29,7 @@ class Notifications {
     );
   }
 
-  static async scheduleNotification(notification) {
+  static scheduleNotification(notification) {
     return cron.schedule(Notifications.createCronPatter(notification), async () => {
       // create the notification
       await Notifications.sendNotification(notification);
@@ -78,13 +78,20 @@ class Notifications {
         systemNotificationId: notification.id,
         recipientId: user.id,
         status: 'pending'
+      }, {
+        include: [{
+          model: models.SystemNotification,
+          as: 'systemNotification'
+        }]
       });
-      Notifications.emitNotification(newNotification);
+      await newNotification.reload();
+      await Notifications.emitNotification(user.id, newNotification);
     });
   }
 
-  static emitNotification(notification) {
-    
+  static async emitNotification(userId, notification) {
+    await notification.update({ status: 'unread' });
+    global.io.sockets.emit(`notification-${userId}`, notification);
   }
 
   static createCronPatter({

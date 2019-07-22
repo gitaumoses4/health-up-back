@@ -13,6 +13,9 @@ Router.get('/notifications/unread',
 Router.get('/notifications/read',
   NotificationController.getReadNotifications);
 
+Router.put('/notifications/deliver/:id',
+  NotificationController.setDelivered);
+
 Router.put('/notifications/read/:id',
   NotificationController.readNotification);
 
