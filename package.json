@@ -33,6 +33,7 @@
   "homepage": "https://github.com/gitaumoses4/maintenance-tracker-api-v2#readme",
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@sendgrid/mail": "^6.4.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
@@ -47,6 +48,7 @@
     "cors": "^2.8.5",
     "debug": "^4.1.1",
     "dotenv": "^8.0.0",
+    "email-templates": "^6.0.0",
     "express": "^4.17.1",
     "express-validator": "^5.3.1",
     "http-errors": "^1.7.2",
@@ -58,6 +60,7 @@
     "node-cron": "^2.0.3",
     "pg": "^7.11.0",
     "pluralize": "^8.0.0",
+    "pug": "^2.0.4",
     "sequelize": "^5.8.7",
     "sequelize-cli": "^5.4.0",
     "socket.io": "^2.2.0"
