@@ -1,4 +1,6 @@
 import * as bcrypt from 'bcrypt';
+import { Op } from 'sequelize';
+import _ from 'lodash';
 import models from '../../database/models';
 import JWT from '../../utils/auth';
 import T from '../../utils/T';
@@ -15,13 +17,17 @@ const include = [
 class UserController {
   static async createUserAccount(req) {
     const {
-      password, name, email, accountType = NORMAL_USER
+      password, name, email, accountType = NORMAL_USER, ambulanceId
     } = req.body;
 
     const encryptedPassword = await bcrypt.hash(password, SALT);
 
     const user = await models.User.create({
-      email, name, password: encryptedPassword, accountType
+      email,
+      name,
+      password: encryptedPassword,
+      accountType,
+      ambulanceId
     });
     return user;
   }
@@ -49,17 +55,34 @@ class UserController {
     return [201, { token: JWT.generate(user) }, T.registration_successful];
   }
 
+  static async loginAmbulance(req) {
+    const { userId, password } = req.body;
 
-  static async loginUser(req) {
-    const { email, password } = req.body;
+    const user = await models.User.unscoped().findOne({
+      where: {
+        [Op.or]: {
+          email: userId,
+          ambulanceId: userId
+        }
+      }
+    });
 
-    const user = await models.User.unscoped().findOne({ where: { email }, include });
+    return UserController.completeLogin(user, password);
+  }
 
+  static async completeLogin(authenticatedUser, password) {
+    const user = authenticatedUser;
     if (await bcrypt.compare(password, user.password)) {
       delete user.dataValues.password;
       return [200, { token: JWT.generate(user), user }, T.login_successful];
     }
     return [403, undefined, T.invalid_login_credentials];
+  }
+
+  static async loginUser(req) {
+    const { email, password } = req.body;
+    const user = await models.User.unscoped().findOne({ where: { email }, include });
+    return UserController.completeLogin(user, password);
   }
 
 

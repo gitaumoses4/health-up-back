@@ -2,6 +2,8 @@ import cron from 'node-cron';
 import moment from 'moment';
 import models from '../database/models';
 import { NORMAL_USER } from './accountTypes';
+import T from './T';
+import EmailSender from '../../emails';
 
 class Notifications {
   static clearTasks() {
@@ -85,13 +87,21 @@ class Notifications {
         }]
       });
       await newNotification.reload();
-      await Notifications.emitNotification(user.id, newNotification);
+      await Notifications.emitNotification(user, newNotification);
     });
   }
 
-  static async emitNotification(userId, notification) {
+  static async emitNotification({ id: userId, name, email }, notification) {
     await notification.update({ status: 'unread' });
     global.io.sockets.emit(`notification-${userId}`, notification);
+
+    // create email data
+    const emailData = {
+      greeting: T.greeting.replace('{}', name),
+      message: notification.systemNotification.text
+    };
+
+    await EmailSender.sendMail('health.pug', email, T.health_alert, emailData);
   }
 
   static createCronPatter({

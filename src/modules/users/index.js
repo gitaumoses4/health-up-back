@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import MRouter, { models } from '../../utils/router';
 import BaseValidator from '../../middleware/BaseValidator';
 import UserValidator from '../../middleware/UserValidator';
@@ -22,6 +23,22 @@ Router.post('/login',
     T.user_does_not_exist
   ),
   UserController.loginUser);
+
+Router.post('/login/ambulance',
+  BaseValidator.requiredFields(['userId', 'password']),
+  UserValidator.validateEmail,
+  BaseValidator.modelExists(
+    ({ body: { userId } }) => ({
+      [Op.or]: {
+        email: userId,
+        ambulanceId: userId,
+      },
+      accountType: AMBULANCE_MAN
+    }),
+    models.User,
+    T.ambulance_does_not_exist
+  ),
+  UserController.loginAmbulance);
 
 Router.get('/user',
   UserValidator.authenticate,

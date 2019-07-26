@@ -6,6 +6,7 @@ import expressValidator from 'express-validator';
 import express from 'express';
 import modules from './modules';
 import Notifications from './utils/Notifications';
+import emails from '../emails';
 
 const app = express();
 
@@ -29,7 +30,6 @@ Notifications.scheduleNotifications();
 app.use(cors());
 
 modules(app);
-
 
 // catch 404 and forward to error handler
 app.use((req, res) => {
