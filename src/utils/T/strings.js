@@ -9,6 +9,7 @@ export default {
   admin: ['Admin', 'لمشرف'],
   normal_user: ['Normal', 'فرد'],
   user_does_not_exist: ['User with this email does not exist'],
+  ambulance_does_not_exist: ['Ambulance with this email or id does not exist'],
   password_updated: ['Password updated successfully'],
   successful: ['Successful'],
   not_found: ['Not found'],
