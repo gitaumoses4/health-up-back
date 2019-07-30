@@ -23,7 +23,12 @@ module.exports = {
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
       field: 'bloodPressure',
-      single: false
+      single: false,
+      configuration: JSON.stringify({
+        frequency: 'weekly',
+        time: '20:00',
+        weekDay: 'saturday'
+      })
     },
     {
       id: 3,
@@ -32,7 +37,12 @@ module.exports = {
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
       field: 'sugar',
-      single: false
+      single: false,
+      configuration: JSON.stringify({
+        frequency: 'weekly',
+        time: '17:00',
+        weekDay: 'tuesday'
+      })
     },
     {
       id: 4,
@@ -40,7 +50,12 @@ module.exports = {
       createdAt: '2019-07-19T09:43:54.535Z',
       alert: 'frequency',
       updatedAt: '2019-07-19T09:43:54.535Z',
-      single: false
+      single: false,
+      configuration: JSON.stringify({
+        frequency: 'weekly',
+        time: '09:00',
+        weekDay: 'friday'
+      })
     },
     {
       id: 5,
@@ -56,7 +71,12 @@ module.exports = {
       alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
-      single: false
+      single: false,
+      configuration: JSON.stringify({
+        frequency: 'weekly',
+        time: '21:00',
+        weekDay: 'wednesday'
+      })
     },
     {
       id: 7,
@@ -65,7 +85,12 @@ module.exports = {
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
       field: 'respiratory',
-      single: false
+      single: false,
+      configuration: JSON.stringify({
+        frequency: 'weekly',
+        time: '21:00',
+        weekDay: 'wednesday'
+      })
     },
     {
       id: 8,
@@ -111,6 +136,15 @@ module.exports = {
       updatedAt: '2019-07-19T09:43:54.535Z',
       field: 'sugar',
       single: true
+    },
+    {
+      id: 13,
+      name: 'Heart Diseases',
+      alert: 'frequency',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      field: 'heartDiseases',
+      single: false,
     },
   ]),
   down: (queryInterface, Sequelize) => queryInterface.bulkDelete(

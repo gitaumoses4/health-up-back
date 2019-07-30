@@ -20,6 +20,10 @@ module.exports = {
       defaultValue: 'frequency',
       allowNull: false
     },
+    sentNotification: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
     single: {
       type: Sequelize.BOOLEAN,
       defaultValue: true

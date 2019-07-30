@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     field: DataTypes.STRING,
     alert: DataTypes.STRING,
     single: DataTypes.BOOLEAN,
-    configuration: DataTypes.JSON
+    configuration: DataTypes.JSON,
+    sentNotification: DataTypes.INTEGER
   }, {});
   NotificationType.associate = (models) => {
     NotificationType.belongsToMany(models.NotificationCondition, {

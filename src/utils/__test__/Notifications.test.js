@@ -5,35 +5,50 @@ import Notifications from '../Notifications';
 describe('Notifications', () => {
   describe('Cron Patterns', () => {
     it('should create the daily cron pattern', () => {
-      const result = Notifications.createCronPattern({ frequency: 'daily', time: '23:59:00' });
+      const result = Notifications.createCronPattern('frequency', {
+        frequency: 'daily',
+        time: '23:59',
+        notificationType: {
+          alert: 'frequency'
+        }
+      });
       expect(result).toEqual('59 23 * * *');
       expect(cron.validate(result)).toBeTruthy();
     });
 
     it('should create the weekly cron pattern', () => {
-      const result = Notifications.createCronPattern({
+      const result = Notifications.createCronPattern('frequency', {
         frequency: 'weekly',
-        time: '21:00:00',
-        weekDay: 'sunday'
+        time: '21:00',
+        weekDay: 'sunday',
+        notificationType: {
+          alert: 'frequency'
+        }
       });
       expect(result).toEqual('0 21 * * sunday');
       expect(cron.validate(result)).toBeTruthy();
     });
 
     it('should create the monthly cron pattern', () => {
-      const result = Notifications.createCronPattern({
+      const result = Notifications.createCronPattern('frequency', {
         frequency: 'monthly',
-        day: 21
+        day: 21,
+        notificationType: {
+          alert: 'frequency'
+        }
       });
       expect(result).toEqual('0 0 21 * *');
       expect(cron.validate(result)).toBeTruthy();
     });
 
     it('should create the yearly cron pattern', () => {
-      const result = Notifications.createCronPattern({
+      const result = Notifications.createCronPattern('frequency', {
         frequency: 'yearly',
         month: 'february',
-        day: 12
+        day: 12,
+        notificationType: {
+          alert: 'frequency'
+        }
       });
 
       expect(result).toEqual('0 0 12 february *');

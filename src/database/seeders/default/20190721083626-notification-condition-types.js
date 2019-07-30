@@ -114,6 +114,20 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date()
     },
+    {
+      id: 17,
+      notificationTypeId: 13,
+      notificationConditionId: 1,
+      createdAt: '2019-07-19T09:43:54.535Z',
+      updatedAt: '2019-07-19T09:43:54.535Z',
+    },
+    {
+      id: 18,
+      notificationTypeId: 13,
+      notificationConditionId: 2,
+      createdAt: '2019-07-19T09:43:54.535Z',
+      updatedAt: '2019-07-19T09:43:54.535Z',
+    },
   ]),
 
   down: (queryInterface, Sequelize) => queryInterface.bulkDelete(

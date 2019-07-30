@@ -22,29 +22,74 @@ class Notifications {
         as: 'notifications'
       }, {
         model: models.NotificationCondition,
-        as: 'conditions'
-      }]
+        as: 'conditions',
+      }],
+      order: [[{ model: models.SystemNotification, as: 'notifications' }, 'id', 'asc']]
     });
 
-
-    // global.scheduledNotifications = notifications.map(
-    //   Notifications.scheduleNotification
-    // );
-
-    // global.scheduledNotificaitons = notificationTypes.map(Notifications.scheduleNotification);
+    global.scheduledNotifications = notificationTypes.reduce((acc, cur) => [
+      ...acc,
+      ...Notifications.processNotificationType(cur)
+    ], []);
   }
 
-  static scheduleNotification(notification) {
-    return cron.schedule(Notifications.createCronPattern(notification), async () => {
+  static processNotificationType(notificationType) {
+    const {
+      single, configuration, notifications = []
+    } = notificationType;
+
+    if (single) {
+      // send all the notifications in this type
+      return notifications.map(
+        notification => Notifications.scheduleNotification(
+          notificationType, notification.configuration, notification
+        )
+      );
+    }
+    // find the notification to send
+    const nextNotification = Notifications.findNextNotification(notificationType);
+    if (nextNotification) {
+      // send this notification
+      return [
+        Notifications.scheduleNotification(
+          notificationType,
+          configuration,
+          notifications[nextNotification]
+        )
+      ];
+    }
+    return [];
+  }
+
+  static findNextNotification(notificationType) {
+    const { sentNotification, notifications = [] } = notificationType;
+    if (notifications.length === 0) {
+      return null;
+    }
+    let index = 0;
+    for (let i = 0; i < notifications.length - 1; i += 1) {
+      if (notifications[i].id === sentNotification) {
+        index = i + 1;
+      }
+    }
+    return index;
+  }
+
+  static scheduleNotification(notificationType, configuration, notification) {
+    const { alert, single } = notificationType;
+    return cron.schedule(Notifications.createCronPattern(alert, configuration), async () => {
       // create the notification
-      await Notifications.sendNotification(notification);
+      if (alert === 'frequency' && !single) {
+        await notificationType.update({ sentNotification: notification.id });
+      }
+
+      await Notifications.sendNotification(notificationType, configuration, notification);
     }, {
       scheduled: true
     });
   }
 
-  static async sendNotification(notification) {
-    const { notificationType: { alert } } = notification;
+  static async filterUsers(notificationType, configuration, notification) {
     const allUsers = await models.User.findAll({
       where: { accountType: NORMAL_USER },
       include: [{
@@ -56,47 +101,67 @@ class Notifications {
       }]
     });
 
-    if (alert === 'frequency') {
-      const { notificationType, condition } = notification;
+    return allUsers.filter(user => Notifications.evaluatePredicate(
+      notificationType, configuration, user, notification
+    ));
+  }
 
-      // filter the users that can receive this notification
-      const users = allUsers.filter((user) => {
-        if (!condition) {
-          return true;
-        }
-        let fieldValue = user;
-        // read user attribute
-        const fields = condition.field.split('.');
-        for (let i = 0; i < fields.length; i += 1) {
-          fieldValue = fieldValue[fields[i]];
-          if (!fieldValue) {
-            break;
-          }
-        }
-        if (fieldValue) {
-          fieldValue = fieldValue[notificationType.field];
-        }
+  static evaluatePredicate(notificationType, user, configuration, notification) {
+    const { condition } = notification;
+    let fieldValue = user;
+    const fields = condition.field.key.split('.');
 
-        return !!fieldValue;
-      });
-
-      users.forEach(async (user) => {
-        const newNotification = await models.Notification.create({
-          systemNotificationId: notification.id,
-          recipientId: user.id,
-          status: 'pending'
-        }, {
-          include: [{
-            model: models.SystemNotification,
-            as: 'systemNotification'
-          }]
-        });
-        await newNotification.reload();
-        await Notifications.emitNotification(user, newNotification);
-      });
-    } else {
-
+    for (let i = 0; i < fields.length; i += 1) {
+      fieldValue = fieldValue[fields[i]];
+      if (!fieldValue) {
+        break;
+      }
     }
+    if (fieldValue) {
+      fieldValue = fieldValue[notificationType.field];
+    }
+    if (fieldValue) {
+      if (notificationType.alert === 'frequency') {
+        return true;
+      }
+      if (fieldValue === 'dontRemember') {
+        return true;
+      }
+      // check date
+      const date = moment(fieldValue, 'DD/MM/YYYY');
+      date.add(configuration.range, configuration.rangeValue);
+
+      const today = moment();
+      if (date.day() === today.day()
+        && date.month() === today.month()
+        && date.year() === today.year()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static async sendNotification(notificationType, configuration, notification) {
+    // filter the users that can receive this notification
+    const users = await Notifications.filterUsers(notificationType, configuration, notification);
+
+    users.forEach(async (user) => {
+      const newNotification = await models.Notification.create({
+        systemNotificationId: notification.id,
+        text: notification.text,
+        recipientId: user.id,
+        status: 'pending'
+      }, {
+        include: [{
+          model: models.SystemNotification,
+          as: 'systemNotification'
+        }]
+      });
+      await newNotification.reload();
+      if (process.env.NODE_ENV !== 'test') {
+        await Notifications.emitNotification(user, newNotification);
+      }
+    });
   }
 
   static async emitNotification({ id: userId, name, email }, notification) {
@@ -106,19 +171,18 @@ class Notifications {
     // create email data
     const emailData = {
       greeting: T.greeting.replace('{}', name),
-      message: notification.systemNotification.text
+      message: notification.text
     };
 
     await EmailSender.sendMail('health.pug', email, T.health_alert, emailData);
   }
 
-  static createCronPattern(notification) {
-    const { notificationType } = notification;
-    if (notificationType.alert === 'frequency') {
+  static createCronPattern(alert = 'frequency', configuration) {
+    if (alert === 'frequency') {
       const {
         frequency, time, weekDay, month, day,
-      } = notification;
-      const formatTime = moment(time, 'hh:mm:ss');
+      } = configuration;
+      const formatTime = moment(time, 'hh:mm');
       switch (frequency) {
         case 'daily': {
           return `${formatTime.minute()} ${formatTime.hour()} * * *`;
