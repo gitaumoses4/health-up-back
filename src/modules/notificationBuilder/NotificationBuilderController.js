@@ -51,6 +51,8 @@ class NotificationBuilderController {
 
     await type.reload();
 
+    await Notifications.scheduleNotifications();
+
     return [200, { notificationType: type }, T.notification_updated];
   }
 

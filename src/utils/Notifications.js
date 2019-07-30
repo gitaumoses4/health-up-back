@@ -19,7 +19,11 @@ class Notifications {
     const notificationTypes = await models.NotificationType.findAll({
       include: [{
         model: models.SystemNotification,
-        as: 'notifications'
+        as: 'notifications',
+        include: [{
+          model: models.NotificationCondition,
+          as: 'condition'
+        }]
       }, {
         model: models.NotificationCondition,
         as: 'conditions',
@@ -48,7 +52,7 @@ class Notifications {
     }
     // find the notification to send
     const nextNotification = Notifications.findNextNotification(notificationType);
-    if (nextNotification) {
+    if (notifications.length) {
       // send this notification
       return [
         Notifications.scheduleNotification(
@@ -102,7 +106,7 @@ class Notifications {
     });
 
     return allUsers.filter(user => Notifications.evaluatePredicate(
-      notificationType, configuration, user, notification
+      notificationType, user, configuration, notification
     ));
   }
 
@@ -128,8 +132,9 @@ class Notifications {
         return true;
       }
       // check date
-      const date = moment(fieldValue, 'DD/MM/YYYY');
-      date.add(configuration.range, configuration.rangeValue);
+      let date = moment(fieldValue, 'YYYY-MM-DD');
+      date = moment(date.add(+configuration.rangeValue, configuration.range)
+        .utcOffset(process.env.TIMEZONE).format());
 
       const today = moment();
       if (date.day() === today.day()
