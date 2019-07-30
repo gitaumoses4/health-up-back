@@ -3,6 +3,9 @@ module.exports = (sequelize, DataTypes) => {
   const Notification = sequelize.define('Notification', {
     status: {
       type: DataTypes.STRING
+    },
+    text: {
+      type: DataTypes.TEXT
     }
   }, {});
   Notification.associate = (models) => {

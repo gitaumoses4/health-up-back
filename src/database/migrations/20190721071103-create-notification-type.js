@@ -20,6 +20,14 @@ module.exports = {
       defaultValue: 'frequency',
       allowNull: false
     },
+    single: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true
+    },
+    configuration: {
+      type: Sequelize.JSON,
+      allowNull: true
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE

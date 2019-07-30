@@ -8,7 +8,13 @@ module.exports = {
       alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
-      field: 'bloodDiseases'
+      field: 'bloodDiseases',
+      configuration: JSON.stringify({
+        frequency: 'weekly',
+        time: '17:00',
+        weekDay: 'thursday'
+      }),
+      single: false
     },
     {
       id: 2,
@@ -16,7 +22,8 @@ module.exports = {
       alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
-      field: 'bloodPressure'
+      field: 'bloodPressure',
+      single: false
     },
     {
       id: 3,
@@ -24,7 +31,8 @@ module.exports = {
       alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
-      field: 'sugar'
+      field: 'sugar',
+      single: false
     },
     {
       id: 4,
@@ -32,13 +40,15 @@ module.exports = {
       createdAt: '2019-07-19T09:43:54.535Z',
       alert: 'frequency',
       updatedAt: '2019-07-19T09:43:54.535Z',
+      single: false
     },
     {
       id: 5,
-      alert: 'frequency',
       name: 'General Alert based on Date',
+      alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
+      single: true
     },
     {
       id: 6,
@@ -46,6 +56,7 @@ module.exports = {
       alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
+      single: false
     },
     {
       id: 7,
@@ -53,15 +64,17 @@ module.exports = {
       alert: 'frequency',
       createdAt: '2019-07-19T09:43:54.535Z',
       updatedAt: '2019-07-19T09:43:54.535Z',
-      field: 'respiratory'
+      field: 'respiratory',
+      single: false
     },
     {
       id: 8,
       name: 'Visit to the dentist',
-      alert: 'frequency',
+      alert: 'range',
       createdAt: new Date(),
       updatedAt: new Date(),
-      field: 'dentist'
+      field: 'dentist',
+      single: true
     },
     {
       id: 9,
@@ -69,6 +82,7 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       alert: 'range',
+      single: true,
       field: 'ophthalmologist'
     },
     {
@@ -77,6 +91,7 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       alert: 'range',
+      single: true,
       field: 'earDoctor'
     },
     {
@@ -85,8 +100,20 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       alert: 'range',
+      single: true,
       field: 'bloodAnalysis'
-    }
+    },
+    {
+      id: 12,
+      name: 'Diabetes Alerts on Ramadan',
+      alert: 'frequency',
+      createdAt: '2019-07-19T09:43:54.535Z',
+      updatedAt: '2019-07-19T09:43:54.535Z',
+      field: 'sugar',
+      single: true
+    },
   ]),
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('NotificationTypes', null, {})
+  down: (queryInterface, Sequelize) => queryInterface.bulkDelete(
+    'NotificationTypes', null, {}
+  )
 };

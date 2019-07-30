@@ -5,25 +5,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    time: {
-      type: DataTypes.TIME,
-      allowNull: false,
-      defaultValue: '00:00'
-    },
-    weekDay: {
-      type: DataTypes.STRING,
-    },
-    month: {
-      type: DataTypes.STRING
-    },
-    day: {
-      type: DataTypes.INTEGER
-    },
-    frequency: {
-      type: DataTypes.STRING
-    },
-    rangeValue: DataTypes.INTEGER,
-    range: DataTypes.STRING
+    configuration: {
+      type: DataTypes.JSON,
+    }
   }, {});
   SystemNotification.associate = function (models) {
     SystemNotification.belongsTo(models.NotificationType, {
