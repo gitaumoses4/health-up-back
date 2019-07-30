@@ -2,16 +2,16 @@
 module.exports = (sequelize, DataTypes) => {
   const HealthInformation = sequelize.define('HealthInformation', {
     dentist: {
-      type: DataTypes.DATE
+      type: DataTypes.TEXT
     },
     ophthalmologist: {
-      type: DataTypes.DATE
+      type: DataTypes.TEXT
     },
     earDoctor: {
-      type: DataTypes.DATE
+      type: DataTypes.TEXT
     },
     bloodAnalysis: {
-      type: DataTypes.DATE
+      type: DataTypes.TEXT
     }
   }, {});
   HealthInformation.associate = function (models) {

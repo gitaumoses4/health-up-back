@@ -41,6 +41,7 @@ class NotificationBuilderController {
         id: notificationId,
         text, time, weekDay,
         month, day, frequency,
+        range, rangeValue,
         condition: notificationConditionId = null
       }, params: { id }
     } = req;
@@ -53,6 +54,8 @@ class NotificationBuilderController {
       id: notificationId,
       month,
       notificationTypeId: id,
+      range,
+      rangeValue,
       day,
       frequency,
       notificationConditionId
@@ -70,7 +73,7 @@ class NotificationBuilderController {
         ...data
       });
     }
-    
+
 
     const notificationType = await models.NotificationType.findByPk(id, {
       include: notificationTypeInclude,

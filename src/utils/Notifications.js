@@ -32,7 +32,7 @@ class Notifications {
   }
 
   static scheduleNotification(notification) {
-    return cron.schedule(Notifications.createCronPatter(notification), async () => {
+    return cron.schedule(Notifications.createCronPattern(notification), async () => {
       // create the notification
       await Notifications.sendNotification(notification);
     }, {
@@ -104,7 +104,7 @@ class Notifications {
     await EmailSender.sendMail('health.pug', email, T.health_alert, emailData);
   }
 
-  static createCronPatter({
+  static createCronPattern({
     frequency, time, weekDay, month, day
   }) {
     const formatTime = moment(time, 'hh:mm:ss');

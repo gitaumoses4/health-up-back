@@ -22,6 +22,8 @@ module.exports = (sequelize, DataTypes) => {
     frequency: {
       type: DataTypes.STRING
     },
+    rangeValue: DataTypes.INTEGER,
+    range: DataTypes.STRING
   }, {});
   SystemNotification.associate = function (models) {
     SystemNotification.belongsTo(models.NotificationType, {

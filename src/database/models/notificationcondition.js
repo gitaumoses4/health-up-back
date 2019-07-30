@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   const NotificationCondition = sequelize.define('NotificationCondition', {
     name: DataTypes.STRING,
-    field: DataTypes.STRING
+    field: DataTypes.JSON
   }, {
     defaultScope: {
       attributes: {

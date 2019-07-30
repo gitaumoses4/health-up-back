@@ -12,8 +12,9 @@ module.exports = {
       allowNull: false
     },
     field: {
-      type: Sequelize.STRING,
-      allowNull: true
+      type: Sequelize.JSON,
+      allowNull: true,
+      defaultValue: {}
     },
     createdAt: {
       allowNull: false,

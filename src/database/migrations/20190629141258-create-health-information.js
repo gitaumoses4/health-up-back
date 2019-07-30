@@ -9,19 +9,19 @@ module.exports = {
     },
     dentist: {
       allowNull: true,
-      type: Sequelize.DATE
+      type: Sequelize.TEXT
     },
     ophthalmologist: {
       allowNull: true,
-      type: Sequelize.DATE
+      type: Sequelize.TEXT
     },
     eyeDoctor: {
       allowNull: true,
-      type: Sequelize.DATE
+      type: Sequelize.TEXT
     },
     bloodAnalysis: {
       allowNull: true,
-      type: Sequelize.DATE
+      type: Sequelize.TEXT
     },
     userId: {
       type: Sequelize.INTEGER,
