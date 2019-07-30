@@ -1,11 +1,8 @@
 import cron from 'node-cron';
-import Notifications from './Notifications';
+import Notifications from '../Notifications';
+
 
 describe('Notifications', () => {
-  describe('Frequency based notifications', () => {
-
-  });
-
   describe('Cron Patterns', () => {
     it('should create the daily cron pattern', () => {
       const result = Notifications.createCronPattern({ frequency: 'daily', time: '23:59:00' });

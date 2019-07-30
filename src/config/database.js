@@ -1,4 +1,4 @@
-const env = require('./environment.js');
+const env = require('./environment');
 
 const defaultConfig = {
   databaseUrl: env.DATABASE_URL,
@@ -11,7 +11,8 @@ const database = {
   },
   test: {
     ...defaultConfig,
-    databaseUrl: env.TEST_DATABASE_URL
+    databaseUrl: env.TEST_DATABASE_URL,
+    use_env_variable: 'TEST_DATABASE_URL'
   },
   staging: {
     ...defaultConfig,
