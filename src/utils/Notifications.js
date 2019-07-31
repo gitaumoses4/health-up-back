@@ -89,7 +89,8 @@ class Notifications {
 
       await Notifications.sendNotification(notificationType, configuration, notification);
     }, {
-      scheduled: true
+      scheduled: true,
+      timezone: process.env.TIMEZONE
     });
   }
 
@@ -133,10 +134,10 @@ class Notifications {
       }
       // check date
       let date = moment(fieldValue, 'YYYY-MM-DD');
-      date = moment(date.add(+configuration.rangeValue, configuration.range)
-        .utcOffset(process.env.TIMEZONE).format());
+      date = date.add(+configuration.rangeValue, configuration.range);
 
-      const today = moment();
+      const today = moment().utc();
+
       if (date.day() === today.day()
         && date.month() === today.month()
         && date.year() === today.year()) {

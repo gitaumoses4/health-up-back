@@ -1,8 +1,36 @@
 import cron from 'node-cron';
+import mockData from './mockData';
 import Notifications from '../Notifications';
 
+const {
+  notificationType,
+  user,
+  configuration,
+  notification,
+  condition
+} = mockData;
 
 describe('Notifications', () => {
+  describe('Evaluate Predicate', () => {
+    it('should process the field required for a health disease', () => {
+      const result = Notifications.evaluatePredicate(
+        notificationType({
+        }),
+        user({}),
+        configuration({
+
+        }),
+        notification({
+          condition: condition({
+            field: {
+              key: 'profile.healthInformation.currentIllness'
+            }
+          })
+        })
+      );
+    });
+  });
+
   describe('Cron Patterns', () => {
     it('should create the daily cron pattern', () => {
       const result = Notifications.createCronPattern('frequency', {
