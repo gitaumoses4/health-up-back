@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import randomString from 'randomstring';
 import { Op } from 'sequelize';
 import _ from 'lodash';
 import models from '../../database/models';
@@ -6,6 +7,7 @@ import JWT from '../../utils/auth';
 import T from '../../utils/T';
 import { NORMAL_USER } from '../../utils/accountTypes';
 import BaseValidator from '../../middleware/BaseValidator';
+import EmailSender from '../../../emails';
 
 export const SALT = 10;
 const include = [
@@ -88,7 +90,7 @@ class UserController {
   }
 
   static async loginUser(req) {
-    const { userId, password } = req.body;
+    const { body: { password }, user } = req;
     return UserController.completeLogin(user, password);
   }
 
@@ -130,6 +132,52 @@ class UserController {
     });
 
     return [200, { users }];
+  }
+
+  static async resetPassword(req) {
+    const { body: { token, password } } = req;
+
+    const resetToken = await models.PasswordResetToken.findOne({
+      where: { token },
+      include: [
+        {
+          model: models.User,
+          as: 'user'
+        }
+      ]
+    });
+
+    if (resetToken) {
+      const { user } = resetToken;
+      await user.update({ password: await bcrypt.hash(password, SALT) });
+      delete user.dataValues.password;
+
+      await models.PasswordResetToken.destroy({
+        where: {
+          userId: user.id
+        }
+      });
+      return [200, { user }, T.password_reset_successful];
+    }
+    return [403, undefined, T.invalid_reset_token];
+  }
+
+  static async forgotPassword(req) {
+    const { user } = req;
+    const token = randomString.generate(32);
+
+    await models.PasswordResetToken.create({
+      token,
+      userId: user.id
+    });
+
+    // send email to user
+    EmailSender.sendMail('password_reset.pug', user.email, T.reset_password_email_subject, {
+      greeting: T.greeting.replace('{}', user.name),
+      message: T.reset_password_email_body,
+      link: `${process.env.PASSWORD_RESET_LINK}${token}`
+    });
+    return [200, undefined, T.password_reset_email_sent];
   }
 }
 

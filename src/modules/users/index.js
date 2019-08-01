@@ -10,7 +10,7 @@ import ProfileController from '../profiles/ProfileController';
 const Router = new MRouter();
 
 Router.post('/register',
-  BaseValidator.requiredFields(['idNumber', 'email', 'password', 'name']),
+  BaseValidator.requiredFields([ 'email', 'password', 'name']),
   BaseValidator.uniqueFields({ email: T.email_used }, models.User),
   UserValidator.validateEmail,
   ProfileController.validateIdNumber,
@@ -54,6 +54,12 @@ Router.get('/users',
   UserValidator.checkRoles([COMPANY, ADMINISTRATOR, AMBULANCE_MAN]),
   UserController.searchUsers);
 
-Router.post('/users/resetPassword',);
+Router.post('/users/forgotPassword',
+  UserValidator.validateUserId,
+  UserController.forgotPassword);
+
+Router.put('/users/resetPassword',
+  BaseValidator.requiredFields(['password']),
+  UserController.resetPassword);
 
 export default Router;

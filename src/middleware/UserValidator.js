@@ -23,6 +23,7 @@ export default class UserValidator {
       },
     });
     req.checkBody('userId', T.user_does_not_exist).custom(() => user !== null);
+    req.user = user;
   }
 
   static async authenticate(req) {
