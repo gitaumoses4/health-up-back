@@ -15,6 +15,7 @@ describe('Notifications', () => {
     it('should process the field required for a health disease', () => {
       const result = Notifications.evaluatePredicate(
         notificationType({
+          field: 'healthDiseases'
         }),
         user({}),
         configuration({
@@ -28,6 +29,7 @@ describe('Notifications', () => {
           })
         })
       );
+      console.log(result);
     });
   });
 

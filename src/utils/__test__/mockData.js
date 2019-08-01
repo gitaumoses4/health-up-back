@@ -1,4 +1,4 @@
-const notificationType = (...overrides) => ({
+const notificationType = overrides => ({
   id: 1,
   name: 'Blood Diseases',
   alert: 'frequency',
@@ -12,7 +12,7 @@ const notificationType = (...overrides) => ({
   ...overrides
 });
 
-export const profile = (...overrides) => ({
+export const profile = overrides => ({
   id: 1,
   fullName: 'Moses Muigai Gitau',
   idNumber: '123',
@@ -52,7 +52,7 @@ export const profile = (...overrides) => ({
   ...overrides
 });
 
-const healthInformation = (...overrides) => ({
+const healthInformation = overrides => ({
   id: 1,
   dentist: null,
   ophthalmologist: '2019-07-31',
@@ -62,24 +62,24 @@ const healthInformation = (...overrides) => ({
   ...overrides
 });
 
-const user = (...overrides) => ({
+const user = ({ profile: userProfile = {}, healthInformation: userHealth = {}, ...overrides }) => ({
   id: 2,
   name: 'Moses Muigai Gitau',
   email: 'gitaumoses4@gmail.com',
   accountType: 'normal_user',
-  profile: profile(...(overrides.profile || {})),
-  healthInformation: healthInformation(...(overrides.healthInformation || {})),
+  profile: profile(userProfile),
+  healthInformation: healthInformation(userHealth),
   ...overrides
 });
 
-const configuration = (...overrides) => ({
+const configuration = overrides => ({
   frequency: 'weekly',
   time: '21:00',
   weekDay: 'monday',
   ...overrides
 });
 
-const notification = (...overrides) => ({
+const notification = overrides => ({
   id: 1,
   text: 'Please remember to visit the ophthalmologist',
   configuration: {
@@ -91,7 +91,7 @@ const notification = (...overrides) => ({
   ...overrides
 });
 
-const condition = (...overrides) => ({
+const condition = overrides => ({
   id: 3,
   name: 'USER SICK',
   field: {

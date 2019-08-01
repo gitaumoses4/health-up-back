@@ -33,7 +33,7 @@ describe('Frequency Notifications', () => {
     });
   });
 
-  it('should contain atleast one test', () => {
+  it('', () => {
     
   });
 });
