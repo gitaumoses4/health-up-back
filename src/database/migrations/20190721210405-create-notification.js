@@ -16,6 +16,10 @@ module.exports = {
         as: 'systemNotification'
       }
     },
+    text: {
+      allowNull: false,
+      type: Sequelize.TEXT,
+    },
     recipientId: {
       type: Sequelize.INTEGER,
       allowNull: false,

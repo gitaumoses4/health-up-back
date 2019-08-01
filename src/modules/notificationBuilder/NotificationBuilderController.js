@@ -1,5 +1,3 @@
-import _ from 'lodash';
-import { Op } from 'sequelize';
 import models from '../../database/models';
 import T from '../../utils/T';
 import Notifications from '../../utils/Notifications';
@@ -35,12 +33,34 @@ class NotificationBuilderController {
     return [200, { notificationType }];
   }
 
+  static async updateConfiguration(req) {
+    const {
+      body: { configuration },
+      params: { id }
+    } = req;
+
+    const type = await models.NotificationType.findByPk(id, {
+      include: notificationTypeInclude
+    });
+    await type.update({
+      configuration: {
+        ...type.configuration,
+        ...configuration
+      }
+    });
+
+    await type.reload();
+
+    await Notifications.scheduleNotifications();
+
+    return [200, { notificationType: type }, T.notification_updated];
+  }
+
   static async createNotification(req) {
     const {
       body: {
         id: notificationId,
-        text, time, weekDay,
-        month, day, frequency,
+        text, configuration,
         condition: notificationConditionId = null
       }, params: { id }
     } = req;
@@ -48,13 +68,9 @@ class NotificationBuilderController {
 
     const data = {
       text,
-      time,
-      weekDay,
       id: notificationId,
-      month,
       notificationTypeId: id,
-      day,
-      frequency,
+      configuration,
       notificationConditionId
     };
 
@@ -63,14 +79,15 @@ class NotificationBuilderController {
     let updated;
     if (find) {
       updated = true;
-      await find.update({ ...data });
+      const updatedConfiguration = { ...find.configuration, ...configuration };
+      await find.update({ ...data, configuration: updatedConfiguration });
     } else {
       updated = false;
       await models.SystemNotification.create({
         ...data
       });
     }
-    
+
 
     const notificationType = await models.NotificationType.findByPk(id, {
       include: notificationTypeInclude,

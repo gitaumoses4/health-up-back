@@ -16,6 +16,12 @@ Router.get('/notificationBuilder/types/:id',
 Router.post('/notificationBuilder/types/:id',
   NotificationBuilderController.createNotification);
 
+Router.put('/notificationBuilder/types/:id/configuration',
+  NotificationBuilderController.updateConfiguration);
+
+Router.put('/notificationBuilder/types/:id',
+  NotificationBuilderController.createNotification);
+
 Router.delete('/notificationBuilder/types/:id/:notificationId',
   NotificationBuilderController.deleteNotification);
 

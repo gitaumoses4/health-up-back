@@ -18,5 +18,11 @@ export default {
   notification_updated: ['Notification has been updated successfully', 'تم تحديث التنبيه'],
   notification_deleted_successfully: ['Notification deleted successfully', 'تم حذف التنبيه'],
   greeting: ['Hello, {}', 'مرحبا, {}'],
-  health_alert: ['Health Alert', 'تنبيه صحي']
+  health_alert: ['Health Alert', 'تنبيه صحي'],
+  id_number_exists: ['A user with this id number already exists', 'يوجد مستخدم له رقم المعرف هذا بالفعل'],
+  reset_password_email_subject: ['Reset Password', 'إعادة تعيين كلمة المرور'],
+  reset_password_email_body: ['You requested for a password reset. Kindly click on the following link to reset your password', 'لقد طلبت إعادة تعيين كلمة المرور. يرجى النقر على الرابط التالي لإعادة تعيين كلمة المرور الخاصة بك.'],
+  password_reset_email_sent: ['Password reset link has been sent to your email', 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.'],
+  invalid_reset_token: ['Your password reset token has expired, or is invalid.', 'انتهت صلاحية رمز إعادة تعيين كلمة المرور الخاصة بك ، أو أنها غير صالحة.'],
+  password_reset_successful: ['Your password has been reset successfully. Login to continue.', 'تم إعادة تعيين كلمة المرور الخاصة بك بنجاح. تسجيل الدخول للمتابعة.']
 };

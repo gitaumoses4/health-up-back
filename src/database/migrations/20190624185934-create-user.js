@@ -15,6 +15,11 @@ module.exports = {
       unique: true,
       type: Sequelize.STRING
     },
+    idNumber: {
+      allowNull: true,
+      unique: true,
+      type: Sequelize.STRING
+    },
     accountType: {
       allowNull: false,
       defaultValue: 'normal_user',
@@ -42,8 +47,8 @@ module.exports = {
       type: Sequelize.DATE
     }
   }),
-  down: (queryInterface, Sequelize) => Promise.all([
-    queryInterface.dropTable('Users'),
-    queryInterface.sequelize.query('DROP TYPE "enum_Users_accountType"'),
-  ]),
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('Users');
+    await queryInterface.sequelize.query('DROP TYPE "enum_Users_accountType"');
+  },
 };

@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         unique: true
       },
+      idNumber: {
+        type: DataTypes.STRING,
+        unique: true
+      },
       accountType: {
         type: DataTypes.STRING,
       },

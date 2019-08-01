@@ -15,6 +15,23 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true
     },
+    alert: {
+      type: Sequelize.ENUM('frequency', 'range'),
+      defaultValue: 'frequency',
+      allowNull: false
+    },
+    sentNotification: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    single: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true
+    },
+    configuration: {
+      type: Sequelize.JSON,
+      allowNull: true
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE
@@ -24,5 +41,8 @@ module.exports = {
       type: Sequelize.DATE
     }
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('NotificationTypes')
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('NotificationTypes');
+    await queryInterface.sequelize.query('DROP TYPE "enum_NotificationTypes_alert"');
+  }
 };

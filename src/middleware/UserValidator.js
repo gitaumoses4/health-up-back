@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import JWT from '../utils/auth';
 import models from '../database/models';
 import T from '../utils/T';
@@ -9,6 +10,20 @@ export default class UserValidator {
       req.checkBody('email', 'Please enter a valid email')
         .isEmail();
     }
+  }
+
+  static async validateUserId(req) {
+    const { body: { userId } } = req;
+    const user = await models.User.unscoped().findOne({
+      where: {
+        [Op.or]: {
+          email: userId,
+          idNumber: userId
+        }
+      },
+    });
+    req.checkBody('userId', T.user_does_not_exist).custom(() => user !== null);
+    req.user = user;
   }
 
   static async authenticate(req) {
