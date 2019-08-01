@@ -1,7 +1,25 @@
 import _ from 'lodash';
+import { Op } from 'sequelize';
 import models from '../../database/models';
+import T from '../../utils/T';
 
 class ProfileController {
+  static async validateIdNumber(req) {
+    const { body: { idNumber }, user } = req;
+
+    if (idNumber) {
+      const where = { idNumber };
+      if (user) {
+        where.id = {
+          [Op.ne]: user.id
+        };
+      }
+      const userFound = await models.User.findOne({ where });
+
+      req.checkBody('idNumber', T.id_number_exists).custom(() => userFound === null);
+    }
+  }
+
   static async updateProfile(req) {
     const { user } = req;
 
@@ -9,6 +27,10 @@ class ProfileController {
 
     let profile = await models.Profile.findOne({ where: { userId: user.id } });
     let data = req.body;
+
+    if (data.idNumber) {
+      await user.update({ idNumber: data.idNumber });
+    }
 
     if (profile) {
       const { healthInformation, personalInformation, generalInformation } = profile;

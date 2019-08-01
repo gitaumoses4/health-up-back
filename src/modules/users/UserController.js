@@ -17,7 +17,7 @@ const include = [
 class UserController {
   static async createUserAccount(req) {
     const {
-      password, name, email, accountType = NORMAL_USER, ambulanceId
+      password, name, email, idNumber, accountType = NORMAL_USER, ambulanceId
     } = req.body;
 
     const encryptedPassword = await bcrypt.hash(password, SALT);
@@ -26,9 +26,17 @@ class UserController {
       email,
       name,
       password: encryptedPassword,
+      idNumber,
       accountType,
       ambulanceId
     });
+
+    if (accountType === NORMAL_USER) {
+      await models.Profile.create({
+        idNumber,
+        userId: user.id
+      });
+    }
     return user;
   }
 
@@ -72,7 +80,7 @@ class UserController {
 
   static async completeLogin(authenticatedUser, password) {
     const user = authenticatedUser;
-    if (await bcrypt.compare(password, user.password)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       delete user.dataValues.password;
       return [200, { token: JWT.generate(user), user }, T.login_successful];
     }
@@ -80,8 +88,7 @@ class UserController {
   }
 
   static async loginUser(req) {
-    const { email, password } = req.body;
-    const user = await models.User.unscoped().findOne({ where: { email }, include });
+    const { userId, password } = req.body;
     return UserController.completeLogin(user, password);
   }
 

@@ -136,7 +136,7 @@ class Notifications {
       let date = moment(fieldValue, 'YYYY-MM-DD');
       date = date.add(+configuration.rangeValue, configuration.range);
 
-      const today = moment().utc();
+      const today = moment();
 
       if (date.day() === today.day()
         && date.month() === today.month()

@@ -5,28 +5,24 @@ import UserValidator from '../../middleware/UserValidator';
 import UserController from './UserController';
 import T from '../../utils/T';
 import { ADMINISTRATOR, AMBULANCE_MAN, COMPANY } from '../../utils/accountTypes';
+import ProfileController from '../profiles/ProfileController';
 
 const Router = new MRouter();
 
 Router.post('/register',
-  BaseValidator.requiredFields(['email', 'password', 'name']),
+  BaseValidator.requiredFields(['idNumber', 'email', 'password', 'name']),
   BaseValidator.uniqueFields({ email: T.email_used }, models.User),
   UserValidator.validateEmail,
+  ProfileController.validateIdNumber,
   UserController.registerUser);
 
 Router.post('/login',
-  BaseValidator.requiredFields(['email', 'password']),
-  UserValidator.validateEmail,
-  BaseValidator.modelExists(
-    ({ body: { email } }) => ({ email }),
-    models.User,
-    T.user_does_not_exist
-  ),
+  BaseValidator.requiredFields(['userId', 'password']),
+  UserValidator.validateUserId,
   UserController.loginUser);
 
 Router.post('/login/ambulance',
   BaseValidator.requiredFields(['userId', 'password']),
-  UserValidator.validateEmail,
   BaseValidator.modelExists(
     ({ body: { userId } }) => ({
       [Op.or]: {
@@ -57,5 +53,7 @@ Router.get('/users',
   UserValidator.authenticate,
   UserValidator.checkRoles([COMPANY, ADMINISTRATOR, AMBULANCE_MAN]),
   UserController.searchUsers);
+
+Router.post('/users/resetPassword',);
 
 export default Router;

@@ -7,10 +7,10 @@ const Router = new MRouter(
 );
 
 Router.put('/profile',
+  ProfileController.validateIdNumber,
   ProfileController.updateProfile);
 
 
 Router.get('/profile',
-  ProfileController.retrieveProfile
-  );
+  ProfileController.retrieveProfile);
 export default Router;

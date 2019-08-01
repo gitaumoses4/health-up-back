@@ -15,6 +15,11 @@ module.exports = {
       unique: true,
       type: Sequelize.STRING
     },
+    idNumber: {
+      allowNull: true,
+      unique: true,
+      type: Sequelize.STRING
+    },
     accountType: {
       allowNull: false,
       defaultValue: 'normal_user',

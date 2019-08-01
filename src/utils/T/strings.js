@@ -18,5 +18,6 @@ export default {
   notification_updated: ['Notification has been updated successfully', 'تم تحديث التنبيه'],
   notification_deleted_successfully: ['Notification deleted successfully', 'تم حذف التنبيه'],
   greeting: ['Hello, {}', 'مرحبا, {}'],
-  health_alert: ['Health Alert', 'تنبيه صحي']
+  health_alert: ['Health Alert', 'تنبيه صحي'],
+  id_number_exists: ['A user with this id number already exists']
 };
