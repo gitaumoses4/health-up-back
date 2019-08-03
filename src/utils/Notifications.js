@@ -113,6 +113,9 @@ class Notifications {
 
   static evaluatePredicate(notificationType, user, configuration, notification) {
     const { condition } = notification;
+    if (!condition) {
+      return true;
+    }
     let fieldValue = user;
     const fields = condition.field.key.split('.');
 
