@@ -17,8 +17,12 @@ export default class UserValidator {
     const user = await models.User.unscoped().findOne({
       where: {
         [Op.or]: {
-          email: userId,
-          idNumber: userId
+          email: {
+            [Op.iLike]: userId
+          },
+          idNumber: {
+            [Op.iLike]: userId
+          }
         }
       },
     });
