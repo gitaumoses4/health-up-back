@@ -71,8 +71,12 @@ class UserController {
     const user = await models.User.unscoped().findOne({
       where: {
         [Op.or]: {
-          email: userId,
-          ambulanceId: userId
+          email: {
+            [Op.iLike]: userId
+          },
+          ambulanceId: {
+            [Op.iLike]: userId
+          }
         }
       }
     });
@@ -126,7 +130,7 @@ class UserController {
     const { query: { search } } = req;
     const users = await models.User.findAll({
       where: {
-        ...BaseValidator.createSearchFields(['email', 'name'], search),
+        ...BaseValidator.createSearchFields(['idNumber'], search),
         accountType: NORMAL_USER
       }
     });

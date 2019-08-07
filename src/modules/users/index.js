@@ -10,7 +10,7 @@ import ProfileController from '../profiles/ProfileController';
 const Router = new MRouter();
 
 Router.post('/register',
-  BaseValidator.requiredFields([ 'email', 'password', 'name']),
+  BaseValidator.requiredFields(['email', 'password', 'name']),
   BaseValidator.uniqueFields({ email: T.email_used }, models.User),
   UserValidator.validateEmail,
   ProfileController.validateIdNumber,
@@ -26,8 +26,12 @@ Router.post('/login/ambulance',
   BaseValidator.modelExists(
     ({ body: { userId } }) => ({
       [Op.or]: {
-        email: userId,
-        ambulanceId: userId,
+        email: {
+          [Op.iLike]: userId
+        },
+        ambulanceId: {
+          [Op.iLike]: userId
+        },
       },
       accountType: AMBULANCE_MAN
     }),
